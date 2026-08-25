@@ -1,0 +1,6 @@
+{
+  "name": "EnglishExpress",
+  "description": "Aplicación para aprender inglés (US) para hispanohablantes (MX) con niveles MCER A1-C2, Juego de Memorama con múltiples tópicos temáticos, Library de fábulas y lecturas clásicas de dominio público, Reto de 100 Palabras adaptativo, radar de disciplinas compacto y American English Coursebook.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
