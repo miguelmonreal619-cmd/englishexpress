@@ -22,7 +22,25 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ onComplete }) 
       setError('Por favor ingresa un correo electrónico válido para vincular tu progreso.');
       return;
     }
-    onComplete(name.trim(), email.trim());
+    
+    // Guardar también en localStorage de forma preventiva para persistencia absoluta
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+    
+    try {
+      const savedProfile = localStorage.getItem('english_express_profile');
+      if (savedProfile) {
+        const parsed = JSON.parse(savedProfile);
+        parsed.name = trimmedName;
+        parsed.email = trimmedEmail;
+        parsed.registered = true;
+        localStorage.setItem('english_express_profile', JSON.stringify(parsed));
+      }
+    } catch (err) {
+      console.warn('Could not update localStorage directly in onboarding', err);
+    }
+
+    onComplete(trimmedName, trimmedEmail);
   };
 
   return (
