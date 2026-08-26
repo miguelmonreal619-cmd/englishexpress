@@ -569,7 +569,7 @@ export function generateThematicExercises(
       correctOption: v1,
       audioText: v1,
       phoneticGuide: `Pronunciación guiada en inglés americano`,
-      options: [v1, 'Término alternativo', 'Expresión casual', 'Frase formal'],
+      options: [v1, 'Alternative term', 'Casual expression', 'Formal phrase'],
       acceptableAnswers: [v1, v1.toLowerCase()],
       mexicanTip: `Enfoque comunicativo en EE.UU.: ${sessionPlan.culturalNote}`,
       explanation: `Término fundamental para el escenario real: ${sessionPlan.realLifeContext}.`
@@ -586,7 +586,7 @@ export function generateThematicExercises(
       targetText: v2,
       correctOption: v2,
       audioText: v2,
-      options: [v2, 'Opción secundaria', 'Forma incorrecta', 'Palabra no relacionada'],
+      options: [v2, 'Secondary option', 'Incorrect form', 'Unrelated word'],
       acceptableAnswers: [v2, v2.toLowerCase()],
       mexicanTip: sessionPlan.culturalNote,
       explanation: `Vocabulario clave: ${sessionPlan.vocabFocus}.`
@@ -603,7 +603,7 @@ export function generateThematicExercises(
       targetText: v3,
       correctOption: v3,
       audioText: v3,
-      options: [v3, 'Expresión fuera de contexto', 'Término descontinuado', 'Frase informal no aplicable'],
+      options: [v3, 'Out-of-context expression', 'Discontinued term', 'Non-applicable informal phrase'],
       acceptableAnswers: [v3, v3.toLowerCase()],
       mexicanTip: `Diferencia cultural México-EE.UU.: ${sessionPlan.culturalNote}`,
       explanation: `Aplicación en la vida real: ${sessionPlan.realLifeContext}.`
@@ -620,7 +620,7 @@ export function generateThematicExercises(
       targetText: v4,
       correctOption: v4,
       audioText: v4,
-      options: [v4, 'Término gramatical', 'Falso amigo / False friend', 'Sinónimo inexacto'],
+      options: [v4, 'Grammar term', 'False friend', 'Inexact synonym'],
       acceptableAnswers: [v4, v4.toLowerCase()],
       mexicanTip: sessionPlan.culturalNote,
       explanation: `Palabra imprescindible de la unidad ${themeData.unitTitle}.`
@@ -662,9 +662,9 @@ export function generateThematicExercises(
       audioText: `We use ${sessionPlan.grammarFocus} for ${sessionPlan.topic}`,
       options: [
         `We use ${sessionPlan.grammarFocus} for ${sessionPlan.topic}`,
-        'Estructura con orden invertido incorrecto',
-        'Fórmula sin concordancia de tiempo verbal',
-        'Uso incorrecto de preposición'
+        `${sessionPlan.topic} we use for ${sessionPlan.grammarFocus}`,
+        `${sessionPlan.grammarFocus} we uses for ${sessionPlan.topic}`,
+        `We using ${sessionPlan.grammarFocus} for ${sessionPlan.topic}`
       ],
       mexicanTip: `Regla para hispanohablantes: En inglés la estructura ${sessionPlan.grammarFocus} no omite elementos clave.`,
       explanation: `Estructura central de la sesión: ${sessionPlan.grammarFocus}.`
@@ -698,9 +698,9 @@ export function generateThematicExercises(
       correctOption: `This pattern is standard in American English: ${sessionPlan.grammarFocus}`,
       options: [
         `This pattern is standard in American English: ${sessionPlan.grammarFocus}`,
-        'Oración con error de concordancia en tercera persona',
-        'Oración con orden de palabras incorrecto',
-        'Oración con tiempo verbal inconsistente'
+        `Standard is this pattern American in English: ${sessionPlan.grammarFocus}`,
+        `This pattern are standard in American English: ${sessionPlan.grammarFocus}`,
+        `This pattern is standard the in American English: ${sessionPlan.grammarFocus}`
       ],
       mexicanTip: sessionPlan.culturalNote,
       explanation: `Estructura gramatical validada: ${sessionPlan.grammarFocus}.`
