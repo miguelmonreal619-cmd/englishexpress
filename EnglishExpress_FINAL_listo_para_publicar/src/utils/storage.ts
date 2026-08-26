@@ -92,7 +92,7 @@ export function saveDiagnosticResult(result: DiagnosticResult): void {
 }
 
 // ==========================================
-// NUEVAS FUNCIONES: PERSISTENCIA DE PROGRESO PARCIAL EN SESIONES
+// PERSISTENCIA DE PROGRESO PARCIAL EN SESIONES
 // ==========================================
 
 export function saveSessionProgress(subLevelId: string, exerciseIndex: number): void {
@@ -122,6 +122,24 @@ export function clearSessionProgress(subLevelId: string): void {
     localStorage.removeItem(`${SESSION_PROGRESS_PREFIX}${subLevelId}`);
   } catch (e) {
     console.error('Error clearing session progress', e);
+  }
+}
+
+/**
+ * Borra todos los datos locales del usuario y reinicia la app (Cerrar Sesión)
+ */
+export function clearAllLocalStorageData(): void {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(DIAGNOSTIC_KEY);
+    
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith(SESSION_PROGRESS_PREFIX)) {
+        localStorage.removeItem(key);
+      }
+    });
+  } catch (e) {
+    console.error('Error clearing local storage', e);
   }
 }
 
@@ -164,7 +182,6 @@ export function scoreToSubLevel(score: number): SubLevel {
 
 /**
  * Dynamically computes exercise distribution out of 40 exercises for a session
- * to level up the student's weakest disciplines.
  */
 export function calculateAdaptiveAllocation(scores: {
   writing: number;
