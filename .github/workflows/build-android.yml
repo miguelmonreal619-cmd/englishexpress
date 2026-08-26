@@ -1,0 +1,79 @@
+name: Build Android App
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Preparar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Instalar dependencias
+        working-directory: EnglishExpress_FINAL_listo_para_publicar
+        run: npm install
+
+      - name: Construir la app web
+        working-directory: EnglishExpress_FINAL_listo_para_publicar
+        run: npm run build
+
+      - name: Agregar plataforma Android
+        working-directory: EnglishExpress_FINAL_listo_para_publicar
+        run: npx cap add android
+
+      - name: Sincronizar Capacitor
+        working-directory: EnglishExpress_FINAL_listo_para_publicar
+        run: npx cap sync android
+
+      - name: Decodificar la firma digital
+        working-directory: EnglishExpress_FINAL_listo_para_publicar
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
+
+      - name: Configurar la firma en el proyecto Android
+        working-directory: EnglishExpress_FINAL_listo_para_publicar/android/app
+        run: |
+          cat >> build.gradle << 'EOF'
+
+          android {
+              signingConfigs {
+                  release {
+                      storeFile file("release.keystore")
+                      storePassword System.getenv("KEYSTORE_PASSWORD")
+                      keyAlias System.getenv("KEY_ALIAS")
+                      keyPassword System.getenv("KEY_PASSWORD")
+                  }
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.release
+                  }
+              }
+          }
+          EOF
+
+      - name: Construir el archivo .aab firmado
+        working-directory: EnglishExpress_FINAL_listo_para_publicar/android
+        run: ./gradlew bundleRelease
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Guardar el archivo .aab para descargar
+        uses: actions/upload-artifact@v4
+        with:
+          name: englishexpress-aab
+          path: EnglishExpress_FINAL_listo_para_publicar/android/app/build/outputs/bundle/release/app-release.aab
