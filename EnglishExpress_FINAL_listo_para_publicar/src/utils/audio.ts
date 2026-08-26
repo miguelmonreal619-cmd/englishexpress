@@ -334,9 +334,8 @@ export function setAudioContextLevel(level: string) {
 }
 
 /**
- * Text-to-Speech Engine (US American English Accent with Friendly Natural Voice & Level Alternation)
- * - Nivel A1, B1, C1 (Niveles impares): Voz femenina cálida, amigable y muy clara (p. ej. Jenny, Samantha, Google US).
- * - Nivel A2, B2, C2 (Niveles pares): Voz masculina amigable y natural (p. ej. Guy, David, Alex).
+ * Text-to-Speech Engine (US American English Accent with Friendly Natural Voice)
+ * - Se usa siempre la voz femenina cálida y clara (p. ej. Jenny, Samantha, Google US).
  */
 export function playUSEnglishVoice(
   text: string, 
@@ -355,21 +354,8 @@ export function playUSEnglishVoice(
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'en-US';
 
-  // Determine target gender based on explicit param or level
-  const targetLevel = (levelOrGender && levelOrGender.length <= 4) ? levelOrGender : currentContextLevel;
-  let preferredGender: 'female' | 'male' = 'female';
-
-  if (levelOrGender === 'male' || levelOrGender === 'female') {
-    preferredGender = levelOrGender;
-  } else {
-    // Alternation rule: A1, B1, C1 -> Female | A2, B2, C2 -> Male
-    const cleanLevel = targetLevel.toUpperCase().trim();
-    if (cleanLevel.startsWith('A2') || cleanLevel.startsWith('B2') || cleanLevel.startsWith('C2')) {
-      preferredGender = 'male';
-    } else {
-      preferredGender = 'female';
-    }
-  }
+  // Siempre usamos la voz femenina (la voz masculina se retiró por sonar poco natural)
+  const preferredGender: 'female' = 'female';
 
   // Find best available US English natural voices
   const voices = window.speechSynthesis.getVoices();
@@ -377,35 +363,21 @@ export function playUSEnglishVoice(
 
   // Friendly Natural Female keywords: Jenny, Aria, Samantha, Victoria, Ava, Allison, Google US English, Natural, Neural
   const femaleKeywords = ['jenny', 'aria', 'samantha', 'victoria', 'ava', 'allison', 'zira', 'karen', 'female', 'google us english'];
-  
-  // Friendly Natural Male keywords: Guy, Christopher, David, Alex, Tom, Fred, Daniel, male
-  const maleKeywords = ['guy', 'christopher', 'david', 'alex', 'tom', 'fred', 'daniel', 'male', 'google uk english male'];
 
   let selectedVoice: SpeechSynthesisVoice | undefined;
 
-  if (preferredGender === 'female') {
-    // Priority 1: High-definition Natural / Neural Female voices
-    selectedVoice = usVoices.find(v => {
-      const name = v.name.toLowerCase();
-      return femaleKeywords.some(k => name.includes(k)) && (name.includes('natural') || name.includes('online') || name.includes('neural') || name.includes('google'));
-    }) || usVoices.find(v => {
-      const name = v.name.toLowerCase();
-      return femaleKeywords.some(k => name.includes(k));
-    });
-  } else {
-    // Priority 1: High-definition Natural / Neural Male voices
-    selectedVoice = usVoices.find(v => {
-      const name = v.name.toLowerCase();
-      return maleKeywords.some(k => name.includes(k)) && (name.includes('natural') || name.includes('online') || name.includes('neural'));
-    }) || usVoices.find(v => {
-      const name = v.name.toLowerCase();
-      return maleKeywords.some(k => name.includes(k));
-    });
-  }
+  // Priority 1: High-definition Natural / Neural Female voices
+  selectedVoice = usVoices.find(v => {
+    const name = v.name.toLowerCase();
+    return femaleKeywords.some(k => name.includes(k)) && (name.includes('natural') || name.includes('online') || name.includes('neural') || name.includes('google'));
+  }) || usVoices.find(v => {
+    const name = v.name.toLowerCase();
+    return femaleKeywords.some(k => name.includes(k));
+  });
 
   // Fallback to best English voice if no specific gender match
   if (!selectedVoice) {
-    selectedVoice = usVoices.find(v => v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Jenny') || v.name.includes('Guy'))
+    selectedVoice = usVoices.find(v => v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Jenny'))
       || usVoices[0] 
       || voices.find(v => v.lang.startsWith('en'));
   }
@@ -415,11 +387,7 @@ export function playUSEnglishVoice(
   }
 
   // Adjust pitch & cadence for a warmer, friendlier, less robotic tone
-  if (preferredGender === 'female') {
-    utterance.pitch = 1.03; // Gentle warm brightness
-  } else {
-    utterance.pitch = 0.94; // Friendly, warm baritone resonance
-  }
+  utterance.pitch = 1.03; // Gentle warm brightness
 
   // Slightly natural pacing (0.92 for warm natural articulation, slower for pronunciation practice)
   utterance.rate = rate;
