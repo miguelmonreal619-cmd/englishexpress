@@ -543,12 +543,10 @@ export function generateThematicExercises(
 
   // If a direct curated session bank exists with the 6 disciplines, use it!
   if (directBank && directBank.length >= 6) {
-    // Return direct curated bank
     return directBank;
   }
 
-  // Otherwise, dynamically generate the complete 6-discipline structured pipeline:
-  // 5 Vocabulary + 5 Grammar + 1 Reading + 1 Writing + 1 Listening + 1 Speaking
+  // Generador dinámico enriquecido y limpio de textos basura
   const vocabWords = sessionPlan.vocabFocus.split(',').map(s => s.trim()).filter(Boolean);
   const v1 = vocabWords[0] || 'Key term';
   const v2 = vocabWords[1] || 'Important phrase';
@@ -569,7 +567,7 @@ export function generateThematicExercises(
       correctOption: v1,
       audioText: v1,
       phoneticGuide: `Pronunciación guiada en inglés americano`,
-      options: [v1, 'Alternative term', 'Casual expression', 'Formal phrase'],
+      options: [v1, 'Practical term', 'Core expression', 'Common phrase'],
       acceptableAnswers: [v1, v1.toLowerCase()],
       mexicanTip: `Enfoque comunicativo en EE.UU.: ${sessionPlan.culturalNote}`,
       explanation: `Término fundamental para el escenario real: ${sessionPlan.realLifeContext}.`
@@ -586,7 +584,7 @@ export function generateThematicExercises(
       targetText: v2,
       correctOption: v2,
       audioText: v2,
-      options: [v2, 'Secondary option', 'Incorrect form', 'Unrelated word'],
+      options: [v2, 'Daily vocabulary', 'Standard context expression', 'Conversational term'],
       acceptableAnswers: [v2, v2.toLowerCase()],
       mexicanTip: sessionPlan.culturalNote,
       explanation: `Vocabulario clave: ${sessionPlan.vocabFocus}.`
@@ -603,7 +601,7 @@ export function generateThematicExercises(
       targetText: v3,
       correctOption: v3,
       audioText: v3,
-      options: [v3, 'Out-of-context expression', 'Discontinued term', 'Non-applicable informal phrase'],
+      options: [v3, 'Professional variant', 'Idiomatic phrase', 'Active dialogue term'],
       acceptableAnswers: [v3, v3.toLowerCase()],
       mexicanTip: `Diferencia cultural México-EE.UU.: ${sessionPlan.culturalNote}`,
       explanation: `Aplicación en la vida real: ${sessionPlan.realLifeContext}.`
@@ -620,7 +618,7 @@ export function generateThematicExercises(
       targetText: v4,
       correctOption: v4,
       audioText: v4,
-      options: [v4, 'Grammar term', 'False friend', 'Inexact synonym'],
+      options: [v4, 'Contextual word', 'Lexical reference', 'Target vocabulary'],
       acceptableAnswers: [v4, v4.toLowerCase()],
       mexicanTip: sessionPlan.culturalNote,
       explanation: `Palabra imprescindible de la unidad ${themeData.unitTitle}.`
@@ -817,13 +815,6 @@ export function generateThematicExercises(
     explanation: `Práctica oral para consolidar el tema de la sesión.`
   };
 
-  // Strictly return in the requested discipline order:
-  // 1. Vocabulary (5)
-  // 2. Grammar (5)
-  // 3. Reading (1)
-  // 4. Writing (1)
-  // 5. Listening (1)
-  // 6. Speaking (1)
   return [
     ...vocabExercises,
     ...grammarExercises,
