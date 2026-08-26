@@ -11,7 +11,7 @@
 // Ejemplo: 'https://englishexpress-backend.onrender.com'
 // ============================================================
 
-export const API_BASE_URL: string = "";
+export const API_BASE_URL: string = "https://englishexpress.onrender.com";
 
 // Ayudante: arma la URL completa para cualquier llamada a /api/...
 export function apiUrl(path: string): string {
