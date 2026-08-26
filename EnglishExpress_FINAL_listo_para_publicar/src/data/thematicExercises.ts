@@ -11,16 +11,16 @@ export const THEMATIC_EXERCISES_DATABASE: Record<string, Exercise[]> = {
       subLevel: 'A1.0',
       thematicUnit: 'Greetings, Names & Alphabet',
       sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: 'Tarjeta de Vocabulario Clave: Aprende a saludar en inglés',
+      prompt: 'Tarjeta de Vocabulario: Aprende el saludo básico',
       targetText: 'Hello',
-      correctOption: 'Hola',
+      correctOption: 'Hello',
       spanishTranslation: 'Hola',
-      audioText: 'Hello! Hi!',
-      phoneticGuide: 'Jelóu / Jai',
-      options: ['Hola', 'Adiós', 'Por favor', 'Gracias'],
-      acceptableAnswers: ['Hola', 'hola', 'Hello', 'hello'],
-      mexicanTip: '"Hello" es el saludo estándar en EE.UU. "Hi" es la versión más casual y amigable.',
-      explanation: '"Hello" significa "Hola". Es la palabra más importante para iniciar cualquier conversación.'
+      audioText: 'Hello',
+      phoneticGuide: 'Jelóu',
+      options: ['Hello', 'Goodbye', 'Please', 'Thanks'],
+      acceptableAnswers: ['Hello', 'hello'],
+      mexicanTip: '"Hello" es el saludo estándar en EE.UU.',
+      explanation: '"Hello" significa "Hola".'
     },
     {
       id: 'a1_0_s1_v2',
@@ -32,13 +32,13 @@ export const THEMATIC_EXERCISES_DATABASE: Record<string, Exercise[]> = {
       sessionTheme: 'Hi & Hello: Saludos y Despedidas',
       prompt: 'Tarjeta de Vocabulario: Saludo matutino',
       targetText: 'Good morning',
-      correctOption: 'Buenos días',
+      correctOption: 'Good morning',
       spanishTranslation: 'Buenos días',
-      audioText: 'Good morning!',
+      audioText: 'Good morning',
       phoneticGuide: 'Gud mór-ning',
-      options: ['Buenos días', 'Buenas noches', 'Hasta luego', 'Buen provecho'],
-      acceptableAnswers: ['Buenos días', 'buenos dias', 'Good morning', 'good morning'],
-      mexicanTip: 'En EE.UU. "Good morning" se usa desde que te levantas hasta las 12:00 del mediodía.',
+      options: ['Good morning', 'Good night', 'Goodbye', 'Hello'],
+      acceptableAnswers: ['Good morning', 'good morning'],
+      mexicanTip: 'Se usa desde la mañana hasta las 12:00 PM.',
       explanation: '"Good morning" significa "Buenos días".'
     },
     {
@@ -49,15 +49,15 @@ export const THEMATIC_EXERCISES_DATABASE: Record<string, Exercise[]> = {
       subLevel: 'A1.0',
       thematicUnit: 'Greetings, Names & Alphabet',
       sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: '¿Cómo te despides diciendo "Adiós" o "Hasta luego" en inglés?',
+      prompt: '¿Cómo te despides diciendo "Adiós" en inglés?',
       targetText: 'Goodbye',
       correctOption: 'Goodbye',
-      audioText: 'Goodbye! Bye!',
-      phoneticGuide: 'Gud-bái / Bái',
+      audioText: 'Goodbye',
+      phoneticGuide: 'Gud-bái',
       options: ['Goodbye', 'Hello', 'Please', 'Good morning'],
       acceptableAnswers: ['Goodbye', 'goodbye', 'Bye', 'bye'],
-      mexicanTip: 'La mayoría de los estadounidenses simplemente dicen "Bye!" o "Bye-bye!".',
-      explanation: '"Goodbye" o "Bye" significa "Adiós" o "Hasta luego".'
+      mexicanTip: 'De forma casual puedes decir simplemente "Bye!".',
+      explanation: '"Goodbye" significa "Adiós".'
     },
     {
       id: 'a1_0_s1_v4',
@@ -67,15 +67,15 @@ export const THEMATIC_EXERCISES_DATABASE: Record<string, Exercise[]> = {
       subLevel: 'A1.0',
       thematicUnit: 'Greetings, Names & Alphabet',
       sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: 'Palabras de Cortesía: ¿Qué significa "Thank you" cuando alguien te ayuda?',
-      targetText: 'Gracias',
-      correctOption: 'Gracias',
-      audioText: 'Thank you very much!',
+      prompt: '¿Qué palabra usas para decir "Gracias"?',
+      targetText: 'Thank you',
+      correctOption: 'Thank you',
+      audioText: 'Thank you',
       phoneticGuide: 'Zank iu',
-      options: ['Gracias', 'Por favor', 'De nada', 'Disculpe'],
-      acceptableAnswers: ['Gracias', 'gracias', 'Thank you', 'thanks'],
-      mexicanTip: 'Pronuncia la "Th" poniendo la punta de la lengua suavemente entre los dientes.',
-      explanation: '"Thank you" (o de forma casual "Thanks") significa "Gracias".'
+      options: ['Thank you', 'Please', 'Hello', 'Goodbye'],
+      acceptableAnswers: ['Thank you', 'thank you', 'Thanks', 'thanks'],
+      mexicanTip: 'Pon la lengua entre los dientes al pronunciar "Th".',
+      explanation: '"Thank you" significa "Gracias".'
     },
     {
       id: 'a1_0_s1_v5',
@@ -85,16 +85,16 @@ export const THEMATIC_EXERCISES_DATABASE: Record<string, Exercise[]> = {
       subLevel: 'A1.0',
       thematicUnit: 'Greetings, Names & Alphabet',
       sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: 'Juego de Memoria: Empareja cada saludo en inglés con su significado en español',
-      targetText: 'Hello = Hola, Good morning = Buenos días, Goodbye = Adiós, Thank you = Gracias',
+      prompt: 'Empareja cada saludo en inglés con su significado',
+      targetText: 'Hello, Good morning, Goodbye, Thank you',
       vocabPairs: [
         { id: 'vp1', english: 'Hello', spanish: 'Hola', phonetic: 'Jelóu' },
         { id: 'vp2', english: 'Good morning', spanish: 'Buenos días', phonetic: 'Gud mór-ning' },
         { id: 'vp3', english: 'Goodbye', spanish: 'Adiós', phonetic: 'Gud-bái' },
         { id: 'vp4', english: 'Thank you', spanish: 'Gracias', phonetic: 'Zank iu' }
       ],
-      mexicanTip: '¡Con estas 4 palabras ya puedes saludar y agradecer en cualquier lugar!',
-      explanation: 'Dominio de saludos y cortesía elemental.'
+      mexicanTip: 'Bloque básico de cortesía.',
+      explanation: 'Saludos esenciales.'
     },
     {
       id: 'a1_0_s1_g1',
@@ -104,14 +104,14 @@ export const THEMATIC_EXERCISES_DATABASE: Record<string, Exercise[]> = {
       subLevel: 'A1.0',
       thematicUnit: 'Greetings, Names & Alphabet',
       sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: 'Regla 1: El pronombre "I" significa "Yo". Con "I" SIEMPRE usamos "am". ¿Cuál es la forma correcta para decir "Yo soy Carlos"?',
-      ruleFormula: '[Sujeto: I] + [Verbo: am] + [Nombre]',
+      prompt: 'Elige la forma correcta para decir "Yo soy Carlos":',
+      ruleFormula: '[I] + [am] + [Nombre]',
       targetText: 'I am Carlos',
       correctOption: 'I am Carlos',
       audioText: 'I am Carlos.',
       options: ['I am Carlos', 'I are Carlos', 'I is Carlos', 'I be Carlos'],
-      mexicanTip: 'El pronombre "I" (Yo) SIEMPRE se escribe con mayúscula en inglés.',
-      explanation: 'Estructura básica: "I" va siempre con "am".'
+      mexicanTip: 'Con "I" siempre va "am".',
+      explanation: 'Estructura básica de presentación.'
     },
     {
       id: 'a1_0_s1_g2',
@@ -121,14 +121,14 @@ export const THEMATIC_EXERCISES_DATABASE: Record<string, Exercise[]> = {
       subLevel: 'A1.0',
       thematicUnit: 'Greetings, Names & Alphabet',
       sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: 'Regla 2: Para decir "Tú eres" o "Usted es", usamos "You are". Completa el espacio: "You _____ Sofia."',
-      ruleFormula: '[Sujeto: You] + [Verbo: are]',
+      prompt: 'Completa el espacio: "You _____ Sofia."',
+      ruleFormula: '[You] + [are]',
       targetText: 'are',
       correctOption: 'are',
       audioText: 'You are Sofia.',
       options: ['are', 'am', 'is', 'be'],
-      mexicanTip: '"You" sirve tanto para "Tú" como para "Usted".',
-      explanation: 'Con "You" siempre se utiliza "are".'
+      mexicanTip: 'Con "You" siempre se usa "are".',
+      explanation: 'Verbo To Be en segunda persona.'
     },
     {
       id: 'a1_0_s1_g3',
@@ -138,14 +138,14 @@ export const THEMATIC_EXERCISES_DATABASE: Record<string, Exercise[]> = {
       subLevel: 'A1.0',
       thematicUnit: 'Greetings, Names & Alphabet',
       sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: 'Regla 3 (Contracciones): "I am" se abrevia como "I\'m" (áim). ¿Cómo dirías de forma natural "Soy David"?',
+      prompt: '¿Cómo dirías de forma natural "Soy David" usando contracción?',
       ruleFormula: 'I am = I\'m',
       targetText: "I'm David",
       correctOption: "I'm David",
       audioText: "I'm David.",
       options: ["I'm David", "Im David", "I am's David", "Me is David"],
-      mexicanTip: 'Los estadounidenses usan "I\'m" el 95% de las veces al hablar.',
-      explanation: '"I\'m" es la contracción estándar de "I am".'
+      mexicanTip: 'Los nativos usan "I\'m" al hablar.',
+      explanation: 'Contracción estándar de "I am".'
     },
     {
       id: 'a1_0_s1_g4',
@@ -155,11 +155,11 @@ export const THEMATIC_EXERCISES_DATABASE: Record<string, Exercise[]> = {
       subLevel: 'A1.0',
       thematicUnit: 'Greetings, Names & Alphabet',
       sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: 'Construcción Gramatical: Ordena las palabras para formar la oración: "Hola, yo soy María."',
+      prompt: 'Ordena las palabras para formar: "Hola, yo soy María."',
       targetText: 'Hello, I am Maria.',
       options: ['am', 'Maria.', 'Hello,', 'I'],
-      mexicanTip: 'Primero el saludo, luego el sujeto y el verbo.',
-      explanation: 'Orden: Saludo + Sujeto + Verbo + Nombre.'
+      mexicanTip: 'Saludo + Sujeto + Verbo.',
+      explanation: 'Estructura afirmativa.'
     },
     {
       id: 'a1_0_s1_g5',
@@ -169,13 +169,13 @@ export const THEMATIC_EXERCISES_DATABASE: Record<string, Exercise[]> = {
       subLevel: 'A1.0',
       thematicUnit: 'Greetings, Names & Alphabet',
       sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: 'Decir tu nombre: ¿Cuál de las siguientes frases es correcta para presentarte?',
+      prompt: '¿Cuál es la frase correcta para decir tu nombre?',
       targetText: 'My name is Alex',
       correctOption: 'My name is Alex',
       audioText: 'My name is Alex.',
       options: ['My name is Alex', 'My name are Alex', 'My name am Alex', 'Me name is Alex'],
-      mexicanTip: '"My name" equivale a tercera persona singular, por eso lleva "is".',
-      explanation: 'Fórmula clásica: "My name is [Nombre]".'
+      mexicanTip: '"My name" lleva "is".',
+      explanation: 'Fórmula clásica de presentación.'
     },
     {
       id: 'a1_0_s1_r1',
@@ -185,13 +185,13 @@ export const THEMATIC_EXERCISES_DATABASE: Record<string, Exercise[]> = {
       subLevel: 'A1.0',
       thematicUnit: 'Greetings, Names & Alphabet',
       sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      passage: 'Conversation:\nAlex: "Hello! Good morning."\nSofia: "Good morning! My name is Sofia."\nAlex: "Nice to meet you, Sofia. I am Alex."',
-      prompt: 'Lee la conversación corta: ¿Quién saludó primero?',
+      passage: 'Alex: "Hello! Good morning."\nSofia: "Good morning! My name is Sofia."',
+      prompt: '¿Quién saludó primero?',
       targetText: 'Alex',
       correctOption: 'Alex',
-      options: ['Alex', 'Sofia', 'Carlos', 'El recepcionista'],
-      mexicanTip: '"Nice to meet you" significa "Mucho gusto en conocerte".',
-      explanation: 'Alex inicia diciendo "Hello! Good morning".'
+      options: ['Alex', 'Sofia', 'Carlos', 'Nadie'],
+      mexicanTip: 'Lee el orden del diálogo.',
+      explanation: 'Alex inicia la conversación.'
     },
     {
       id: 'a1_0_s1_w1',
@@ -201,11 +201,11 @@ export const THEMATIC_EXERCISES_DATABASE: Record<string, Exercise[]> = {
       subLevel: 'A1.0',
       thematicUnit: 'Greetings, Names & Alphabet',
       sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: 'Ordena las palabras para formar un saludo cortés completo:',
+      prompt: 'Ordena las palabras para formar un saludo:',
       targetText: 'Good morning, my name is Carlos.',
       options: ['morning,', 'is', 'Carlos.', 'name', 'Good', 'my'],
-      mexicanTip: 'Empieza con mayúscula y finaliza con punto.',
-      explanation: 'Estructura: Saludo + Posesivo + Nombre + Verbo To Be.'
+      mexicanTip: 'Mayúscula al inicio y punto al final.',
+      explanation: 'Estructura escrita correcta.'
     },
     {
       id: 'a1_0_s1_l1',
@@ -215,18 +215,18 @@ export const THEMATIC_EXERCISES_DATABASE: Record<string, Exercise[]> = {
       subLevel: 'A1.0',
       thematicUnit: 'Greetings, Names & Alphabet',
       sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: 'Escucha con atención el audio y elige qué fue lo que dijo la persona:',
+      prompt: 'Escucha el audio y elige lo que dijo la persona:',
       audioText: 'Good morning! My name is Carlos.',
       targetText: 'Buenos días! Mi nombre es Carlos.',
       correctOption: 'Buenos días! Mi nombre es Carlos.',
       options: [
         'Buenos días! Mi nombre es Carlos.',
         'Buenas noches! Yo soy David.',
-        'Hasta luego Carlos, que tengas buen día.',
-        'Hola! Por favor toma asiento Carlos.'
+        'Hasta luego Carlos.',
+        'Hola! Toma asiento.'
       ],
-      mexicanTip: '"Good morning" tiene un sonido suave en la "d".',
-      explanation: 'El audio pronuncia claramente "Good morning! My name is Carlos."'
+      mexicanTip: 'Atento al saludo matutino.',
+      explanation: 'Audio de presentación.'
     },
     {
       id: 'a1_0_s1_s1',
@@ -236,12 +236,12 @@ export const THEMATIC_EXERCISES_DATABASE: Record<string, Exercise[]> = {
       subLevel: 'A1.0',
       thematicUnit: 'Greetings, Names & Alphabet',
       sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: 'Presiona el micrófono y pronuncia esta presentación con ritmo natural:',
+      prompt: 'Pronuncia esta presentación con ritmo natural:',
       audioText: "Hello! My name is Carlos.",
       targetText: "Hello! My name is Carlos.",
       phoneticGuide: 'Jelóu! Mái néim is Cár-los.',
-      mexicanTip: 'Pronuncia la "H" de "Hello" como una ligera exhalación de aire.',
-      explanation: 'Práctica de saludo y presentación personal.'
+      mexicanTip: 'Exhala suavemente en la "H".',
+      explanation: 'Práctica oral.'
     }
   ]
 };
@@ -262,11 +262,21 @@ export function generateThematicExercises(
     return directBank;
   }
 
+  // Extraer las palabras clave reales del tema (ej. pancakes, eggs, bacon, coffee)
   const vocabWords = sessionPlan.vocabFocus.split(',').map(s => s.trim()).filter(Boolean);
   const v1 = vocabWords[0] || sessionPlan.topic;
-  const v2 = vocabWords[1] || 'Core concept';
-  const v3 = vocabWords[2] || 'Common phrase';
-  const v4 = vocabWords[3] || 'Essential term';
+  const v2 = vocabWords[1] || 'toast';
+  const v3 = vocabWords[2] || 'coffee';
+  const v4 = vocabWords[3] || 'juice';
+
+  // Banco limpio de opciones de vocabulario basadas estrictamente en las palabras clave reales
+  const cleanVocabPool = [v1, v2, v3, v4, 'water', 'bread', 'milk', 'fruit', 'tea', 'sugar'];
+
+  const getCleanOptions = (target: string) => {
+    const others = cleanVocabPool.filter(w => w.toLowerCase() !== target.toLowerCase());
+    const shuffledOthers = [...others].sort(() => 0.5 - Math.random()).slice(0, 3);
+    return [target, ...shuffledOthers].sort(() => 0.5 - Math.random());
+  };
 
   const vocabExercises: Exercise[] = [
     {
@@ -282,10 +292,10 @@ export function generateThematicExercises(
       correctOption: v1,
       audioText: v1,
       phoneticGuide: `Pronunciación guiada en inglés estadounidense`,
-      options: [v1, v2, sessionPlan.topic, 'Daily expression'],
+      options: getCleanOptions(v1),
       acceptableAnswers: [v1, v1.toLowerCase()],
-      mexicanTip: `Enfoque comunicativo en EE.UU.: ${sessionPlan.culturalNote}`,
-      explanation: `Término fundamental para el escenario real: ${sessionPlan.realLifeContext}.`
+      mexicanTip: `Contexto en EE.UU.: ${sessionPlan.culturalNote}`,
+      explanation: `Término fundamental para: ${sessionPlan.realLifeContext}.`
     },
     {
       id: `dyn_${subLevel}_s${sessionNum}_v2_${Date.now()}`,
@@ -295,14 +305,14 @@ export function generateThematicExercises(
       subLevel,
       thematicUnit: themeData.unitTitle,
       sessionTheme: sessionPlan.title,
-      prompt: `¿Cuál de los siguientes términos corresponde al concepto principal de esta sesión?`,
+      prompt: `Elige la opción correcta para el vocabulario "${v2}":`,
       targetText: v2,
       correctOption: v2,
       audioText: v2,
-      options: [v2, v1, 'Context reference', 'Common term'],
+      options: getCleanOptions(v2),
       acceptableAnswers: [v2, v2.toLowerCase()],
       mexicanTip: sessionPlan.culturalNote,
-      explanation: `Vocabulario clave: ${sessionPlan.vocabFocus}.`
+      explanation: `Vocabulario clave de la sesión: ${v2}.`
     },
     {
       id: `dyn_${subLevel}_s${sessionNum}_v3_${Date.now()}`,
@@ -312,14 +322,14 @@ export function generateThematicExercises(
       subLevel,
       thematicUnit: themeData.unitTitle,
       sessionTheme: sessionPlan.title,
-      prompt: `Asociación en situación real: ¿Qué expresión usarías en "${sessionPlan.realLifeContext}"?`,
+      prompt: `Asociación en situación real (${sessionPlan.realLifeContext}): ¿Qué palabra representa "${v3}"?`,
       targetText: v3,
       correctOption: v3,
       audioText: v3,
-      options: [v3, v1, 'Dialogue variant', 'Conversational phrase'],
+      options: getCleanOptions(v3),
       acceptableAnswers: [v3, v3.toLowerCase()],
-      mexicanTip: `Diferencia cultural México-EE.UU.: ${sessionPlan.culturalNote}`,
-      explanation: `Aplicación en la vida real: ${sessionPlan.realLifeContext}.`
+      mexicanTip: sessionPlan.culturalNote,
+      explanation: `Aplicación práctica: ${v3}.`
     },
     {
       id: `dyn_${subLevel}_s${sessionNum}_v4_${Date.now()}`,
@@ -329,14 +339,14 @@ export function generateThematicExercises(
       subLevel,
       thematicUnit: themeData.unitTitle,
       sessionTheme: sessionPlan.title,
-      prompt: `Identifica la palabra clave correcta para completar el vocabulario de la sesión:`,
+      prompt: `Identifica la opción correcta para el término "${v4}":`,
       targetText: v4,
       correctOption: v4,
       audioText: v4,
-      options: [v4, v2, 'Lexical reference', 'Target word'],
+      options: getCleanOptions(v4),
       acceptableAnswers: [v4, v4.toLowerCase()],
       mexicanTip: sessionPlan.culturalNote,
-      explanation: `Palabra imprescindible de la unidad ${themeData.unitTitle}.`
+      explanation: `Palabra imprescindible de la unidad.`
     },
     {
       id: `dyn_${subLevel}_s${sessionNum}_v5_${Date.now()}`,
@@ -354,8 +364,8 @@ export function generateThematicExercises(
         { id: 'dvp3', english: v3, spanish: `${v3} (Concepto 3)` },
         { id: 'dvp4', english: v4, spanish: `${v4} (Concepto 4)` }
       ],
-      mexicanTip: `Aprender vocabulario por bloques temáticos acelera la fluidez conversacional.`,
-      explanation: `Integración del vocabulario de la sesión ${sessionPlan.title}.`
+      mexicanTip: `Aprender vocabulario por bloques temáticos acelera la fluidez.`,
+      explanation: `Integración del vocabulario de la sesión.`
     }
   ];
 
@@ -370,17 +380,17 @@ export function generateThematicExercises(
       sessionTheme: sessionPlan.title,
       prompt: `Regla Gramatical: Enfoque en "${sessionPlan.grammarFocus}". Selecciona la estructura correcta:`,
       ruleFormula: `Estructura clave: ${sessionPlan.grammarFocus}`,
-      targetText: `We use ${sessionPlan.grammarFocus} for ${sessionPlan.topic}`,
-      correctOption: `We use ${sessionPlan.grammarFocus} for ${sessionPlan.topic}`,
-      audioText: `We use ${sessionPlan.grammarFocus} for ${sessionPlan.topic}`,
+      targetText: `We use ${sessionPlan.grammarFocus} correctly.`,
+      correctOption: `We use ${sessionPlan.grammarFocus} correctly.`,
+      audioText: `We use ${sessionPlan.grammarFocus} correctly.`,
       options: [
-        `We use ${sessionPlan.grammarFocus} for ${sessionPlan.topic}`,
-        `${sessionPlan.topic} we use for ${sessionPlan.grammarFocus}`,
-        `${sessionPlan.grammarFocus} we uses for ${sessionPlan.topic}`,
-        `We using ${sessionPlan.grammarFocus} for ${sessionPlan.topic}`
+        `We use ${sessionPlan.grammarFocus} correctly.`,
+        `We uses ${sessionPlan.grammarFocus} incorrect.`,
+        `Using ${sessionPlan.grammarFocus} structure wrong.`,
+        `Incorrect grammar form for ${sessionPlan.grammarFocus}`
       ],
-      mexicanTip: `Regla para hispanohablantes: En inglés la estructura no omite elementos clave.`,
-      explanation: `Estructura central de la sesión: ${sessionPlan.grammarFocus}.`
+      mexicanTip: `Estructura clave validada para el nivel.`,
+      explanation: `Estructura central: ${sessionPlan.grammarFocus}.`
     },
     {
       id: `dyn_${subLevel}_s${sessionNum}_g2_${Date.now()}`,
@@ -390,13 +400,13 @@ export function generateThematicExercises(
       subLevel,
       thematicUnit: themeData.unitTitle,
       sessionTheme: sessionPlan.title,
-      prompt: `Aplica la regla de ${sessionPlan.grammarFocus}: Completa la oración con la forma correcta.`,
+      prompt: `Aplica la regla de ${sessionPlan.grammarFocus}: Completa con la opción correcta.`,
       ruleFormula: `[Patrón: ${sessionPlan.grammarFocus}]`,
       targetText: v1,
       correctOption: v1,
-      options: [v1, 'is', 'are', 'was'],
+      options: [v1, 'is', 'are', 'do'],
       mexicanTip: sessionPlan.culturalNote,
-      explanation: `Aplicación directa de ${sessionPlan.grammarFocus}.`
+      explanation: `Aplicación directa de gramática.`
     },
     {
       id: `dyn_${subLevel}_s${sessionNum}_g3_${Date.now()}`,
@@ -406,17 +416,17 @@ export function generateThematicExercises(
       subLevel,
       thematicUnit: themeData.unitTitle,
       sessionTheme: sessionPlan.title,
-      prompt: `¿Cuál de las siguientes oraciones aplica correctamente la regla de ${sessionPlan.grammarFocus}?`,
-      targetText: `This pattern is standard in American English: ${sessionPlan.grammarFocus}`,
-      correctOption: `This pattern is standard in American English: ${sessionPlan.grammarFocus}`,
+      prompt: `¿Cuál de las siguientes oraciones aplica correctamente ${sessionPlan.grammarFocus}?`,
+      targetText: `This sentence is grammatically correct using ${sessionPlan.grammarFocus}.`,
+      correctOption: `This sentence is grammatically correct using ${sessionPlan.grammarFocus}.`,
       options: [
-        `This pattern is standard in American English: ${sessionPlan.grammarFocus}`,
-        `Standard is this pattern American in English: ${sessionPlan.grammarFocus}`,
-        `This pattern are standard in American English: ${sessionPlan.grammarFocus}`,
-        `This pattern is standard the in American English: ${sessionPlan.grammarFocus}`
+        `This sentence is grammatically correct using ${sessionPlan.grammarFocus}.`,
+        `This sentence are incorrect with ${sessionPlan.grammarFocus}.`,
+        `Incorrect structure without ${sessionPlan.grammarFocus}.`,
+        `Wrong grammar pattern application.`
       ],
       mexicanTip: sessionPlan.culturalNote,
-      explanation: `Estructura gramatical validada: ${sessionPlan.grammarFocus}.`
+      explanation: `Validación de regla gramatical.`
     },
     {
       id: `dyn_${subLevel}_s${sessionNum}_g4_${Date.now()}`,
@@ -426,11 +436,11 @@ export function generateThematicExercises(
       subLevel,
       thematicUnit: themeData.unitTitle,
       sessionTheme: sessionPlan.title,
-      prompt: `Ordena los bloques para formar la oración gramatical correcta:`,
-      targetText: `We are practicing ${v1} today.`,
-      options: ['are', 'We', 'practicing', `${v1}`, 'today.'],
-      mexicanTip: `En inglés el sujeto siempre precede al verbo en afirmaciones estándar.`,
-      explanation: `Orden sintáctico: Sujeto + Verbo auxiliar + Verbo principal + Complemento.`
+      prompt: `Ordena los bloques para formar la oración correcta:`,
+      targetText: `We practice ${v1} today.`,
+      options: ['We', 'practice', `${v1}`, 'today.'],
+      mexicanTip: `Sujeto + Verbo + Complemento.`,
+      explanation: `Orden sintáctico estándar.`
     },
     {
       id: `dyn_${subLevel}_s${sessionNum}_g5_${Date.now()}`,
@@ -440,18 +450,18 @@ export function generateThematicExercises(
       subLevel,
       thematicUnit: themeData.unitTitle,
       sessionTheme: sessionPlan.title,
-      prompt: `Decisión Gramatical en Conversación: ¿Cómo responderías adecuadamente aplicando ${sessionPlan.grammarFocus}?`,
-      targetText: `Yes, we understand ${sessionPlan.grammarFocus} clearly.`,
-      correctOption: `Yes, we understand ${sessionPlan.grammarFocus} clearly.`,
-      audioText: `Yes, we understand ${sessionPlan.grammarFocus} clearly.`,
+      prompt: `Decisión Gramatical: ¿Cómo estructurarías una oración usando ${sessionPlan.grammarFocus}?`,
+      targetText: `Yes, we apply ${sessionPlan.grammarFocus} properly.`,
+      correctOption: `Yes, we apply ${sessionPlan.grammarFocus} properly.`,
+      audioText: `Yes, we apply ${sessionPlan.grammarFocus} properly.`,
       options: [
-        `Yes, we understand ${sessionPlan.grammarFocus} clearly.`,
-        'No, we not understands the topic',
-        'Yes, are understanding without subject',
-        'No subject with incorrect auxiliary'
+        `Yes, we apply ${sessionPlan.grammarFocus} properly.`,
+        'No structure applied correctly',
+        'Wrong grammatical agreement',
+        'Invalid sentence construction'
       ],
       mexicanTip: sessionPlan.culturalNote,
-      explanation: `Consolidación de la gramática de la sesión.`
+      explanation: `Consolidación gramatical.`
     }
   ];
 
@@ -463,18 +473,18 @@ export function generateThematicExercises(
     subLevel,
     thematicUnit: themeData.unitTitle,
     sessionTheme: sessionPlan.title,
-    passage: `Context Note (${themeData.unitTitle} - ${sessionPlan.title}): "In everyday American English, mastering ${sessionPlan.grammarFocus} and terms like ${sessionPlan.vocabFocus} allows you to communicate with confidence in scenarios such as ${sessionPlan.realLifeContext}."`,
-    prompt: `¿Cuál es el beneficio de dominar ${sessionPlan.grammarFocus} según el texto?`,
-    targetText: `Permite comunicarse con confianza en situaciones como ${sessionPlan.realLifeContext}`,
-    correctOption: `Permite comunicarse con confianza en situaciones como ${sessionPlan.realLifeContext}`,
+    passage: `Context Note (${themeData.unitTitle} - ${sessionPlan.title}): "When talking about ${sessionPlan.topic}, knowing terms like ${v1} and ${v2} helps you communicate naturally in situations such as ${sessionPlan.realLifeContext}."`,
+    prompt: `¿Cuál es el beneficio de conocer términos como ${v1} según el texto?`,
+    targetText: `Ayuda a comunicarse de forma natural en situaciones como ${sessionPlan.realLifeContext}`,
+    correctOption: `Ayuda a comunicarse de forma natural en situaciones como ${sessionPlan.realLifeContext}`,
     options: [
-      `Permite comunicarse con confianza en situaciones como ${sessionPlan.realLifeContext}`,
-      'Solo sirve para aprobar exámenes escritos teóricos',
-      'Obliga a hablar siempre de manera excesivamente formal',
-      'Elimina por completo la necesidad de practicar conversación'
+      `Ayuda a comunicarse de forma natural en situaciones como ${sessionPlan.realLifeContext}`,
+      'Solo es útil para exámenes escritos teóricos',
+      'No tiene ninguna aplicación en la vida real',
+      'Impide comprender conversaciones cotidianas'
     ],
     mexicanTip: sessionPlan.culturalNote,
-    explanation: `Comprensión de lectura aplicada a ${sessionPlan.realLifeContext}.`
+    explanation: `Comprensión de lectura aplicada.`
   };
 
   const writingExercise: Exercise = {
@@ -485,11 +495,11 @@ export function generateThematicExercises(
     subLevel,
     thematicUnit: themeData.unitTitle,
     sessionTheme: sessionPlan.title,
-    prompt: `Construcción Escrita: Ordena las palabras para expresar una idea clara en ${sessionPlan.topic}:`,
-    targetText: `We are ready for ${v1} in our daily work.`,
-    options: ['for', 'ready', 'We', 'are', `${v1}`, 'in', 'our', 'daily', 'work.'],
+    prompt: `Construcción Escrita: Ordena las palabras para formar una idea clara:`,
+    targetText: `I want to order ${v1} please.`,
+    options: ['I', 'want', 'to', 'order', `${v1}`, 'please.'],
     mexicanTip: sessionPlan.culturalNote,
-    explanation: `Práctica de redacción aplicando el vocabulario y gramática aprendidos.`
+    explanation: `Práctica de redacción aplicada.`
   };
 
   const listeningExercise: Exercise = {
@@ -500,18 +510,18 @@ export function generateThematicExercises(
     subLevel,
     thematicUnit: themeData.unitTitle,
     sessionTheme: sessionPlan.title,
-    prompt: `Escucha con atención el audio sobre ${sessionPlan.topic} y responde:`,
-    audioText: `Please make sure to review ${v1} for our meeting.`,
-    targetText: `Revisar ${v1} para la reunión o actividad indicada`,
-    correctOption: `Revisar ${v1} para la reunión o actividad indicada`,
+    prompt: `Escucha el audio relacionado con ${sessionPlan.topic} y selecciona la respuesta:`,
+    audioText: `I would like some ${v1} and ${v2} please.`,
+    targetText: `Pedir ${v1} y ${v2} de forma educada`,
+    correctOption: `Pedir ${v1} y ${v2} de forma educada`,
     options: [
-      `Revisar ${v1} para la reunión o actividad indicada`,
-      'Cancelar la cita y posponer el evento',
-      'Pagar una tarifa en ventanilla',
-      'Pedir la cuenta en el restaurante'
+      `Pedir ${v1} y ${v2} de forma educada`,
+      'Cancelar el pedido por completo',
+      'Rechazar la comida ofrecida',
+      'Preguntar por la cuenta de la luz'
     ],
-    mexicanTip: `Conecta las palabras en inglés americano: ${sessionPlan.culturalNote}`,
-    explanation: `Comprensión auditiva en acento estadounidense.`
+    mexicanTip: `Usa "I would like" para pedir alimentos con cortesía.`,
+    explanation: `Comprensión auditiva contextual.`
   };
 
   const speakingExercise: Exercise = {
@@ -522,12 +532,12 @@ export function generateThematicExercises(
     subLevel,
     thematicUnit: themeData.unitTitle,
     sessionTheme: sessionPlan.title,
-    prompt: `Pronuncia con ritmo y entonación estadounidense aplicando ${sessionPlan.grammarFocus}:`,
-    audioText: `Hello, I would like to practice ${v1} today.`,
-    targetText: `Hello, I would like to practice ${v1} today.`,
-    phoneticGuide: `Jelóu, ái gud láik tu prák-tis dis tu-déi.`,
+    prompt: `Pronuncia con claridad la siguiente frase relacionada con alimentos y pedidos:`,
+    audioText: `Can I have some ${v1} please?`,
+    targetText: `Can I have some ${v1} please?`,
+    phoneticGuide: `Kán ai háv sam ${v1} plís?`,
     mexicanTip: sessionPlan.culturalNote,
-    explanation: `Práctica oral para consolidar el tema de la sesión.`
+    explanation: `Práctica oral para fluidez en restaurantes y tiendas.`
   };
 
   return [
