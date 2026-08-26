@@ -3,13 +3,13 @@ import {
   Sparkles, Flame, Zap, Diamond, Award, Bot, BookOpen, 
   RotateCcw, ArrowRight, CheckCircle, Bell, UserCheck, Play, Lock, Check,
   Home, BarChart3, Trophy, Settings as SettingsIcon, HelpCircle,
-  ChevronDown, ChevronUp, Brain
+  ChevronDown, ChevronUp, Brain, LogIn, UserPlus
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { UserProfile, DiagnosticResult, SubLevel, CEFRLevel, Discipline } from './types';
 import { 
   loadUserProfile, saveUserProfile, checkAndUpdateDailyStreak, 
-  calculateAdaptiveAllocation 
+  calculateAdaptiveAllocation, clearAllLocalStorageData 
 } from './utils/storage';
 import { sound, setAudioContextLevel } from './utils/audio';
 import { LEVEL_TIERS, generateSessionsForSubLevel } from './data/curriculum';
@@ -31,6 +31,12 @@ export function App() {
   const [profile, setProfile] = useState<UserProfile>(() => {
     const p = loadUserProfile();
     return checkAndUpdateDailyStreak(p);
+  });
+
+  // Estado para controlar si hay una sesión activa o si se muestra la pantalla de bienvenida/login
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
+    const p = loadUserProfile();
+    return !!p.registered;
   });
 
   // Modal view states
@@ -59,19 +65,10 @@ export function App() {
     }
   }, [profile.isDarkMode]);
 
-  // Audio voice level sync (alternates friendly female / male voices)
+  // Audio voice level sync
   useEffect(() => {
     setAudioContextLevel(profile.currentSubLevel || profile.globalLevel || 'A1');
   }, [profile.currentSubLevel, profile.globalLevel]);
-
-  // Check if initial user needs onboarding/diagnostic
-  useEffect(() => {
-    if (!profile.registered) {
-      setShowOnboarding(true);
-    } else if (!profile.hasCompletedDiagnostic) {
-      setShowDiagnosticExam(true);
-    }
-  }, []);
 
   // Save profile helper
   const handleUpdateProfile = (updates: Partial<UserProfile>) => {
@@ -96,8 +93,27 @@ export function App() {
       email,
       registered: true
     });
+    setIsLoggedIn(true);
     setShowOnboarding(false);
     setShowDiagnosticExam(true);
+  };
+
+  // Login existing user
+  const handleLoginExistingUser = () => {
+    sound.playTap();
+    const loaded = loadUserProfile();
+    if (loaded.registered) {
+      setProfile(loaded);
+      setIsLoggedIn(true);
+    } else {
+      setShowOnboarding(true);
+    }
+  };
+
+  // Logout (Oculta la sesión pero JAMÁS borra los datos)
+  const handleLogout = () => {
+    sound.playTap();
+    setIsLoggedIn(false);
   };
 
   // Complete Diagnostic Exam (40 Questions)
@@ -115,7 +131,7 @@ export function App() {
     setShowDiagnosticExam(false);
   };
 
-  // Start Session (with sessionNumber and optional quickCount)
+  // Start Session
   const handleStartSession = (subLevel: SubLevel, sessionNumOrCount?: number, explicitQuickCount?: number) => {
     let sessionNumber = 1;
     let quickCount = 10;
@@ -140,7 +156,7 @@ export function App() {
     });
   };
 
-  // Finish Session & Update Skills / Streaks / XP / Daily Goal Minutes
+  // Finish Session
   const handleFinishSession = (
     earnedXp: number, 
     earnedGems: number, 
@@ -177,7 +193,6 @@ export function App() {
 
     setActiveSession(null);
 
-    // If reached daily goal or completed first session of the day, celebrate streak!
     if (justAchievedGoal || updatedSessions.length === 1) {
       setTimeout(() => setShowStreakCelebration(true), 600);
     }
@@ -208,7 +223,6 @@ export function App() {
     setMilestoneExamLevel(null);
   };
 
-  // High density calculation helpers
   const levelsOrder: CEFRLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
   const userTierIndex = levelsOrder.indexOf(profile.globalLevel);
 
@@ -222,76 +236,58 @@ export function App() {
     return targetIdx < userTierIndex || profile.completedMilestoneExams.includes(lvl);
   };
 
-  // Active sub-level session state
   const currentSessions = generateSessionsForSubLevel(profile.currentSubLevel, true, profile.completedSessions);
   const nextAvailableSession = currentSessions.find(s => !s.isCompleted) || currentSessions[0];
   const activeSessionNum = nextAvailableSession ? nextAvailableSession.sessionNumber : 1;
   const completedInCurrentSub = currentSessions.filter(s => s.isCompleted).length;
 
-  // Disciplines list for radar
-  const disciplinesConfig: {
-    key: Discipline;
-    name: string;
-    label: string;
-    tag: string;
-    color: string;
-    badgeBg: string;
-    textColor: string;
-    score: number;
-    subLevelStr: string;
-    count: number;
-  }[] = [
+  const disciplinesConfig = [
     {
-      key: 'writing',
+      key: 'writing' as Discipline,
       name: 'Writing',
       label: 'Writing (Escritura)',
       tag: 'W',
       color: 'bg-purple-500',
       badgeBg: 'bg-purple-100 text-purple-600 dark:bg-purple-950/60 dark:text-purple-400',
-      textColor: profile.disciplineScores.writing < 60 ? 'text-red-500 font-bold' : 'text-slate-800 dark:text-slate-200',
       score: profile.disciplineScores.writing,
       subLevelStr: profile.disciplineLevels.writing,
       count: profile.allocation.writing
     },
     {
-      key: 'speaking',
+      key: 'speaking' as Discipline,
       name: 'Speaking',
       label: 'Speaking (Habla)',
       tag: 'S',
       color: 'bg-orange-500',
       badgeBg: 'bg-orange-100 text-orange-600 dark:bg-orange-950/60 dark:text-orange-400',
-      textColor: 'text-blue-600 dark:text-blue-400 font-bold',
       score: profile.disciplineScores.speaking,
       subLevelStr: profile.disciplineLevels.speaking,
       count: profile.allocation.speaking
     },
     {
-      key: 'listening',
+      key: 'listening' as Discipline,
       name: 'Listening',
       label: 'Listening (Escucha)',
       tag: 'L',
       color: 'bg-green-500',
       badgeBg: 'bg-green-100 text-green-600 dark:bg-green-950/60 dark:text-green-400',
-      textColor: 'text-blue-600 dark:text-blue-400 font-bold',
       score: profile.disciplineScores.listening,
       subLevelStr: profile.disciplineLevels.listening,
       count: profile.allocation.listening
     },
     {
-      key: 'reading',
+      key: 'reading' as Discipline,
       name: 'Reading',
       label: 'Reading (Lectura)',
       tag: 'R',
       color: 'bg-blue-500',
       badgeBg: 'bg-blue-100 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400',
-      textColor: 'text-blue-600 dark:text-blue-400 font-bold',
       score: profile.disciplineScores.reading,
       subLevelStr: profile.disciplineLevels.reading,
       count: profile.allocation.reading
     }
   ];
 
-  // Lowest discipline
   const lowestDiscipline = [...disciplinesConfig].sort((a, b) => a.score - b.score)[0];
 
   const themeBgClasses: Record<string, string> = {
@@ -303,10 +299,90 @@ export function App() {
 
   const activeThemeClass = themeBgClasses[profile.theme || 'indigo'] || themeBgClasses.indigo;
 
+  // ==========================================
+  // PANTALLA DE BIENVENIDA / LOGIN POR DEFECTO
+  // ==========================================
+  if (!isLoggedIn) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4 relative overflow-hidden font-sans">
+        {/* Background decorative glows */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-10 right-10 w-72 h-72 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-md w-full bg-slate-900/90 border border-slate-800 rounded-3xl p-8 shadow-2xl backdrop-blur-xl relative z-10 text-center">
+          
+          {/* Logo / Brand */}
+          <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white font-black flex items-center justify-center mx-auto mb-6 shadow-xl shadow-blue-500/30 text-3xl">
+            E
+          </div>
+
+          <span className="px-3 py-1 rounded-full text-xs font-black bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase tracking-widest inline-block mb-3">
+            US ⇄ MX Platform
+          </span>
+
+          <h1 className="text-3xl font-black text-white tracking-tight mb-2">
+            Welcome to EnglishExpress!
+          </h1>
+          <p className="text-sm text-slate-400 mb-8 leading-relaxed">
+            Domina el inglés americano real desde el nivel A1 hasta C2 con un sistema adaptativo inteligente y dinámico.
+          </p>
+
+          <div className="space-y-3">
+            {/* Botón Crear Cuenta / Registrarse */}
+            <button
+              type="button"
+              onClick={() => setShowOnboarding(true)}
+              className="w-full py-3.5 px-6 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg shadow-blue-900/40 transition-all cursor-pointer flex items-center justify-center gap-2"
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>Crear Cuenta Nueva</span>
+            </button>
+
+            {/* Botón Iniciar Sesión (si ya tiene datos guardados) */}
+            <button
+              type="button"
+              onClick={handleLoginExistingUser}
+              className="w-full py-3.5 px-6 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm border border-slate-700 transition-all cursor-pointer flex items-center justify-center gap-2"
+            >
+              <LogIn className="w-4 h-4 text-blue-400" />
+              <span>Iniciar Sesión en este Dispositivo</span>
+            </button>
+          </div>
+
+          <p className="text-[11px] text-slate-500 mt-6">
+            Tus avances, rachas y lecciones se guardan de forma segura en tu navegador.
+          </p>
+        </div>
+
+        {/* Modal de Onboarding para Registro */}
+        {showOnboarding && (
+          <OnboardingModal
+            onComplete={handleCompleteOnboarding}
+          />
+        )}
+
+        {/* Modal de Examen Diagnóstico al crear cuenta nueva */}
+        {showDiagnosticExam && (
+          <DiagnosticExamModal
+            userName={profile.name}
+            onFinish={(res) => {
+              handleFinishDiagnostic(res);
+              setIsLoggedIn(true);
+            }}
+            onClose={() => setShowDiagnosticExam(false)}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // ==========================================
+  // APLICACIÓN PRINCIPAL (CUANDO HAY SESIÓN ACTIVA)
+  // ==========================================
   return (
     <div className={`min-h-screen ${activeThemeClass} flex flex-col font-sans transition-colors`}>
       
-      {/* Navigation Header with Top Navigation Bar (Visible Immediately) */}
+      {/* Navigation Header con el botón de Cerrar Sesión integrado */}
       <Navbar
         profile={profile}
         activeTab={activeTab}
@@ -324,14 +400,13 @@ export function App() {
         onRetakeDiagnostic={() => setShowDiagnosticExam(true)}
         onToggleDarkMode={handleToggleDarkMode}
         onChangeTheme={(th) => handleUpdateProfile({ theme: th })}
+        onLogout={handleLogout}
       />
 
       {/* Main High-Density App Canvas */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 flex flex-col gap-6">
         
-        {/* ========================================================
-            1. TOP: COMPACT NIVEL GLOBAL CEFR BAR
-        ======================================================== */}
+        {/* 1. TOP: COMPACT NIVEL GLOBAL CEFR BAR */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl p-3.5 sm:p-4 shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3 transition-all">
           <div className="flex items-center gap-2.5">
             <span className="text-[10px] font-black tracking-wider uppercase px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 shrink-0">
@@ -347,7 +422,6 @@ export function App() {
             </div>
           </div>
 
-          {/* Compact 6-Level Horizontal Selector / Status Strip */}
           <div className="grid grid-cols-6 gap-1.5 sm:gap-2">
             {[
               { lvl: 'A1' as CEFRLevel, name: 'A1' },
@@ -401,9 +475,7 @@ export function App() {
           </div>
         </div>
 
-        {/* ========================================================
-            2. META DIARIA DE PRÁCTICA
-        ======================================================== */}
+        {/* 2. META DIARIA DE PRÁCTICA */}
         <DailyGoalCard
           profile={profile}
           onStartPractice={() => handleStartSession(profile.currentSubLevel, activeSessionNum)}
@@ -411,9 +483,7 @@ export function App() {
           onUpdateGoalMinutes={(min) => handleUpdateProfile({ dailyGoalMinutes: min })}
         />
 
-        {/* ========================================================
-            3. RUTA DE APRENDIZAJE UNIFICADA (Coursebook + Sesiones + Examen de Certificación + Desglose de 60 Unidades)
-        ======================================================== */}
+        {/* 3. RUTA DE APRENDIZAJE UNIFICADA */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col justify-between transition-all duration-200 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700">
           {(() => {
             const activeSubLevelTheme = getSubLevelTheme(profile.currentSubLevel);
@@ -423,7 +493,6 @@ export function App() {
             return (
               <div className="flex flex-col justify-between h-full space-y-5">
                 
-                {/* Header: Module Info, Direct Action & Explore Toggle */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <div className="flex flex-wrap items-center gap-2 mb-1.5">
@@ -446,7 +515,6 @@ export function App() {
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto flex-wrap">
-                    {/* Primary Continue / Start Button */}
                     <button
                       onClick={() => handleStartSession(profile.currentSubLevel, activeSessionNum)}
                       className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg shadow-blue-200 dark:shadow-blue-900/30 transition-all cursor-pointer text-xs sm:text-sm tracking-wide hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2"
@@ -455,11 +523,9 @@ export function App() {
                       <span>EMPEZAR SESIÓN {activeSessionNum}</span>
                     </button>
 
-                    {/* Explore 60 Units Drawer Toggle */}
                     <button
                       onClick={() => setShowCurriculumUnits(!showCurriculumUnits)}
                       className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs transition-all cursor-pointer border border-slate-200 dark:border-slate-700 hover:scale-[1.02] active:scale-[0.98]"
-                      title={showCurriculumUnits ? 'Ocultar mapa de 60 unidades' : 'Explorar las 60 unidades curriculares'}
                     >
                       <span>{showCurriculumUnits ? 'Ocultar unidades' : 'Explorar 60 unidades'}</span>
                       <ChevronDown className={`w-4 h-4 text-blue-600 dark:text-blue-400 transition-transform duration-300 ${showCurriculumUnits ? 'rotate-180' : ''}`} />
@@ -467,12 +533,10 @@ export function App() {
                   </div>
                 </div>
 
-                {/* Interactive Session Path Map (Sessions 1-8 + Certification Final Exam) */}
                 <div className="p-3 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800/80">
                   <div className="flex justify-between items-center px-2 sm:px-4 relative py-2 overflow-x-auto gap-1 sm:gap-2">
                     <div className="absolute h-1 bg-slate-200 dark:bg-slate-700 top-1/2 left-4 right-6 -z-0"></div>
                     
-                    {/* 8 Lesson Nodes */}
                     {currentSessions.map((session) => {
                       const isCurrent = session.sessionNumber === activeSessionNum;
                       const isDone = session.isCompleted;
@@ -483,7 +547,7 @@ export function App() {
                             key={session.id}
                             onClick={() => handleStartSession(profile.currentSubLevel, session.sessionNumber)}
                             className="z-10 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-green-500 border-4 border-white dark:border-slate-900 flex items-center justify-center text-white text-xs font-bold shadow-sm cursor-pointer hover:scale-110 hover:shadow-md transition-all shrink-0"
-                            title={`Sesión ${session.sessionNumber} (Completada - Clic para repasar)`}
+                            title={`Sesión ${session.sessionNumber} (Completada)`}
                           >
                             ✓
                           </div>
@@ -496,7 +560,7 @@ export function App() {
                             key={session.id}
                             onClick={() => handleStartSession(profile.currentSubLevel, session.sessionNumber)}
                             className="z-10 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-blue-600 border-4 border-white dark:border-slate-900 flex items-center justify-center text-white text-sm sm:text-base font-black shadow-md ring-4 ring-blue-200 dark:ring-blue-900/60 cursor-pointer hover:scale-110 hover:shadow-lg transition-all shrink-0 animate-pulse"
-                            title={`Sesión ${session.sessionNumber} (Sesión activa - Clic para empezar)`}
+                            title={`Sesión ${session.sessionNumber} (Activa)`}
                           >
                             {session.sessionNumber}
                           </div>
@@ -519,7 +583,6 @@ export function App() {
                       );
                     })}
 
-                    {/* Integrated Certification Exam Node at the end of the line */}
                     <div 
                       onClick={() => setMilestoneExamLevel(profile.globalLevel)}
                       className={`z-10 px-3 py-1.5 rounded-xl border-2 flex items-center gap-1.5 shadow-sm cursor-pointer hover:scale-105 hover:shadow-md transition-all shrink-0 ${
@@ -527,7 +590,6 @@ export function App() {
                           ? 'bg-amber-500 text-white border-amber-400'
                           : 'bg-slate-800 text-white border-slate-700 hover:bg-slate-700'
                       }`}
-                      title={`Examen de Certificación del Nivel ${profile.globalLevel} (Acredita y gradúate de nivel)`}
                     >
                       <Award className="w-4 h-4 text-amber-300 shrink-0" />
                       <span className="text-xs font-black whitespace-nowrap">
@@ -537,7 +599,6 @@ export function App() {
                   </div>
                 </div>
 
-                {/* Discipline Pills & Quick Practice Button */}
                 <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-[11px] font-bold text-slate-400 uppercase mr-1">Disciplinas:</span>
@@ -561,7 +622,6 @@ export function App() {
                   </button>
                 </div>
 
-                {/* Collapsible 60 Curriculum Units Drawer */}
                 {showCurriculumUnits && (
                   <div className="mt-4 pt-5 border-t border-slate-200 dark:border-slate-800 animate-fade-in">
                     <div className="mb-3 flex items-center justify-between">
@@ -569,9 +629,6 @@ export function App() {
                         <h4 className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
                           Mapa Completo del Marco Común Europeo (MCER A1 - C2)
                         </h4>
-                        <p className="text-xs text-slate-400">
-                          Haz clic en cualquier subetapa para repasar temas o adelantar lecciones.
-                        </p>
                       </div>
                     </div>
                     <LevelPath
@@ -587,9 +644,7 @@ export function App() {
           })()}
         </div>
 
-        {/* ========================================================
-            4. RADAR DE DISCIPLINAS (HASTA ABAJO, COMPACTO Y VERTICAL)
-        ======================================================== */}
+        {/* 4. RADAR DE DISCIPLINAS */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 dark:border-slate-800 transition-all duration-200 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3.5 pb-2.5 border-b border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-2">
@@ -601,7 +656,6 @@ export function App() {
               </h3>
             </div>
             
-            {/* Warning alert inline */}
             <div className="p-1.5 px-3 bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/60 rounded-xl text-center sm:text-right">
               <p className="text-[11px] text-red-700 dark:text-red-400 font-bold">
                 ⚠️ Refuerzo prioritario: <b>{lowestDiscipline.name}</b> ({lowestDiscipline.count}/40 ejercicios en tus sesiones)
@@ -609,17 +663,14 @@ export function App() {
             </div>
           </div>
 
-          {/* 4 Vertical Bar Charts */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 items-end">
             {disciplinesConfig.map(d => (
               <div key={d.key} className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/80">
                 
-                {/* Top sub-level or score */}
                 <span className="text-xs font-black text-slate-700 dark:text-slate-200 tracking-tight">
                   {d.subLevelStr}
                 </span>
 
-                {/* Vertical Progress Bar Track */}
                 <div className="w-5 sm:w-6 h-20 sm:h-24 bg-slate-200/70 dark:bg-slate-700/60 rounded-full p-0.5 flex flex-col justify-end overflow-hidden shadow-inner my-0.5">
                   <div 
                     className={`w-full rounded-full ${d.color} transition-all duration-700 shadow-sm`}
@@ -628,12 +679,10 @@ export function App() {
                   />
                 </div>
 
-                {/* Percentage */}
                 <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">
                   {d.score}%
                 </span>
 
-                {/* Tag badge & Name */}
                 <div className="flex items-center gap-1 mt-0.5">
                   <span className={`w-4 h-4 rounded flex items-center justify-center text-[9px] font-black text-white ${d.color} shrink-0`}>
                     {d.tag}
@@ -649,18 +698,7 @@ export function App() {
 
       </main>
 
-      {/* ==========================================
-          MODALS & OVERLAYS
-      ========================================== */}
-
-      {/* 1. Onboarding Modal */}
-      {showOnboarding && (
-        <OnboardingModal
-          onComplete={handleCompleteOnboarding}
-        />
-      )}
-
-      {/* 2. Diagnostic Exam Modal (40 Questions) */}
+      {/* MODALS & OVERLAYS */}
       {showDiagnosticExam && (
         <DiagnosticExamModal
           userName={profile.name}
@@ -669,7 +707,6 @@ export function App() {
         />
       )}
 
-      {/* 3. Interactive Session Player */}
       {activeSession && (
         <SessionPlayer
           subLevel={activeSession.subLevel}
@@ -681,7 +718,6 @@ export function App() {
         />
       )}
 
-      {/* 4. Milestone Certification Exam */}
       {milestoneExamLevel && (
         <MilestoneExamModal
           initialLevel={milestoneExamLevel}
@@ -691,7 +727,6 @@ export function App() {
         />
       )}
 
-      {/* 5. Library Modal (Fábulas & Historias de Dominio Público) */}
       {showLibrary && (
         <LibraryModal
           profile={profile}
@@ -705,7 +740,6 @@ export function App() {
         />
       )}
 
-      {/* 6. 100-Word Challenge Vocab Game */}
       {showVocabGame && (
         <VocabChallengeModal
           profile={profile}
@@ -719,7 +753,6 @@ export function App() {
         />
       )}
 
-      {/* 7. Memorama Vocabulary Game */}
       {showMemoryGame && (
         <MemoryGameModal
           profile={profile}
@@ -733,7 +766,6 @@ export function App() {
         />
       )}
 
-      {/* 8. Settings, Goals & Dark Mode Modal */}
       {showNotifications && (
         <NotificationsSettingsModal
           profile={profile}
@@ -746,7 +778,6 @@ export function App() {
         />
       )}
 
-      {/* 9. Streak Celebration Modal */}
       {showStreakCelebration && (
         <StreakCelebrationModal
           profile={profile}
