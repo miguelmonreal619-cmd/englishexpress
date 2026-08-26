@@ -19,7 +19,6 @@ export function generateThematicExercises(
     return directBank;
   }
 
-  // Extraer las palabras clave de la sesión
   const vocabWords = sessionPlan.vocabFocus.split(',').map(s => s.trim()).filter(Boolean);
   const v1 = vocabWords[0] || sessionPlan.topic;
   const v2 = vocabWords[1] || 'toast';
@@ -34,7 +33,6 @@ export function generateThematicExercises(
     return [target, ...shuffledOthers].sort(() => 0.5 - Math.random());
   };
 
-  // Diccionario inteligente de traducción para los enunciados en español
   const translationMap: Record<string, string> = {
     'pancakes': 'hotcakes / panqueques',
     'eggs': 'huevos',
@@ -139,10 +137,10 @@ export function generateThematicExercises(
       prompt: `Mini Juego de Vocabulario: Conecta las palabras clave de la sesión "${sessionPlan.title}"`,
       targetText: `${v1}, ${v2}, ${v3}, ${v4}`,
       vocabPairs: [
-        { id: 'dvp1', english: v1, spanish: `${getSpanishLabel(v1)}` },
-        { id: 'dvp2', english: v2, spanish: `${getSpanishLabel(v2)}` },
-        { id: 'dvp3', english: v3, spanish: `${getSpanishLabel(v3)}` },
-        { id: 'dvp4', english: v4, spanish: `${getSpanishLabel(v4)}` }
+        { id: 'p1', english: v1, spanish: getSpanishLabel(v1) },
+        { id: 'p2', english: v2, spanish: getSpanishLabel(v2) },
+        { id: 'p3', english: v3, spanish: getSpanishLabel(v3) },
+        { id: 'p4', english: v4, spanish: getSpanishLabel(v4) }
       ],
       mexicanTip: `Aprender vocabulario por bloques temáticos acelera la fluidez.`,
       explanation: `Integración del vocabulario de la sesión.`
