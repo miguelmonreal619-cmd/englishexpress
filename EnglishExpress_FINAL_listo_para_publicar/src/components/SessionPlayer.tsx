@@ -998,7 +998,9 @@ export const SessionPlayer: React.FC<SessionPlayerProps> = ({
               {currentExercise.options && (
                 <div className="space-y-2">
                   <span className="text-xs font-bold text-slate-500 dark:text-slate-400 block px-1">
-                    Selecciona el significado en español:
+                    {/^[\x00-\x7F\s.,!?¡¿'"()/&-]*$/.test(currentExercise.options.join(''))
+                      ? 'Selecciona la palabra o frase correcta en inglés:'
+                      : 'Selecciona el significado en español:'}
                   </span>
                   {displayOptions.map((opt, idx) => {
                     const isSelected = selectedOption === opt;
