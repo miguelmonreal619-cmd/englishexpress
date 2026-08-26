@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   CheckCircle2, XCircle, Volume2, Mic, ArrowRight, RotateCcw, 
   Sparkles, Award, BarChart3, AlertCircle, HelpCircle, Bot, Zap, Play, Square,
-  ChevronRight, Flame, Layers, Lock, Unlock, ShieldCheck, Shuffle, X, LogOut
+  ChevronRight, Flame, Layers, Lock, Unlock, ShieldCheck, Shuffle, X, LogOut, Brain
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { Exercise, DiagnosticResult, Discipline, DiagnosticDiscipline, CEFRLevel, SubLevel } from '../types';
@@ -25,6 +25,10 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
   onFinish,
   onClose
 }) => {
+  // Pantalla de introducción previa al diagnóstico y alerta de Skip
+  const [showIntroScreen, setShowIntroScreen] = useState(true);
+  const [showSkipAlert, setShowSkipAlert] = useState(false);
+
   // Dynamically generate fresh, randomized questions and shuffled options on every modal mount / retake
   const [dynamicBanks] = useState<Record<DiagnosticDiscipline, {
     baseQuestions: Exercise[];
@@ -88,7 +92,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
   // Voice Recording state
   const [isRecording, setIsRecording] = useState(false);
   const [spokenTranscript, setSpokenTranscript] = useState('');
-  const [spokenMissingWords, setSpokenMissingWords] = useState<string[]>([]);
   const [recognitionError, setRecognitionError] = useState('');
   const [speechSupported, setSpeechSupported] = useState(true);
   
@@ -113,6 +116,21 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
       try { recognitionRef.current.stop(); } catch(e) {}
     }
     if (onClose) onClose();
+  };
+
+  const handleSkipDiagnostic = () => {
+    const defaultResult: DiagnosticResult = {
+      completedAt: new Date().toISOString(),
+      globalScore: 15,
+      globalLevel: 'A1',
+      initialSubLevel: 'A1.0',
+      disciplineScores: { writing: 15, speaking: 15, listening: 15, reading: 15 },
+      disciplineLevels: { writing: 'A1.0', speaking: 'A1.0', listening: 'A1.0', reading: 'A1.0' },
+      weakestDiscipline: 'writing',
+      strongestDiscipline: 'reading',
+      allocation: calculateAdaptiveAllocation({ writing: 15, speaking: 15, listening: 15, reading: 15 })
+    };
+    onFinish(defaultResult);
   };
 
   const recognitionRef = useRef<any>(null);
@@ -168,7 +186,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
     setTextInput('');
     setSelectedOption(null);
     setSpokenTranscript('');
-    setSpokenMissingWords([]);
     setRecognitionError('');
 
     if (currentExercise && currentExercise.type === 'writing_reorder' && currentExercise.options) {
@@ -253,7 +270,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
     }
   };
 
-  // Word reordering helpers
   const handleSelectWord = (word: string, index: number) => {
     sound.playTap();
     setSelectedWords(prev => [...prev, word]);
@@ -266,7 +282,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
     setSelectedWords(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Helper to compute calibrated score and level for a single completed or early-stopped discipline
   const computeDisciplineScore = (disc: DiagnosticDiscipline, answers: Record<string, { isCorrect: boolean; userText: string; score: number }>) => {
     const bank = dynamicBanks[disc];
     const answeredBase = bank.baseQuestions.filter(q => answers[q.id] !== undefined);
@@ -275,7 +290,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
 
     let finalDiscScore = 15;
 
-    // Check if bonus C1/C2 were reached and answered
     if (unlockedBonusLevels[disc].c2) {
       const c2Scores = bank.c2Questions.map(q => answers[q.id]?.score || 0);
       const c2Avg = c2Scores.length ? c2Scores.reduce((a, b) => a + b, 0) / c2Scores.length : 0;
@@ -285,24 +299,14 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
       const c1Avg = c1Scores.length ? c1Scores.reduce((a, b) => a + b, 0) / c1Scores.length : 0;
       finalDiscScore = Math.round(80 + (c1Avg / 100) * 9);
     } else if (answeredTotal < 8) {
-      // Early stopping calibration based on highest demonstrated mastery
-      if (correctCount === 0) {
-        finalDiscScore = 15; // A1.0
-      } else if (correctCount === 1) {
-        finalDiscScore = 24; // A1.1
-      } else if (correctCount === 2) {
-        finalDiscScore = 35; // A1.4
-      } else if (correctCount === 3) {
-        finalDiscScore = 44; // A2.0
-      } else if (correctCount === 4) {
-        finalDiscScore = 52; // A2.4
-      } else if (correctCount === 5) {
-        finalDiscScore = 60; // B1.0
-      } else if (correctCount >= 6) {
-        finalDiscScore = 70; // B1.5 - B2.0
-      }
+      if (correctCount === 0) finalDiscScore = 15;
+      else if (correctCount === 1) finalDiscScore = 24;
+      else if (correctCount === 2) finalDiscScore = 35;
+      else if (correctCount === 3) finalDiscScore = 44;
+      else if (correctCount === 4) finalDiscScore = 52;
+      else if (correctCount === 5) finalDiscScore = 60;
+      else if (correctCount >= 6) finalDiscScore = 70;
     } else {
-      // Completed all 8 base questions
       const baseScores = bank.baseQuestions.map(q => answers[q.id]?.score || 0);
       const baseAvg = baseScores.reduce((a, b) => a + b, 0) / 8;
       finalDiscScore = Math.round((baseAvg / 100) * 78);
@@ -321,7 +325,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
     };
   };
 
-  // Evaluate & Advance Question (Silent Diagnostic flow - saves data without spoiling answers)
   const handleConfirmAndAdvance = async () => {
     if (!currentExercise || isAdvancing) return;
 
@@ -336,19 +339,13 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
       const responseToEvaluate = spokenTranscript.trim();
       studentResponse = responseToEvaluate;
 
-      // High-speed, high-precision client-side phonetic & completeness evaluation (<1ms)
       const analysis = analyzeSpokenAccuracy(currentExercise.targetText, responseToEvaluate);
       const missingWords = analysis.missingWords;
       const allWordsSpoken = analysis.allWordsPresent;
 
-      // STRICT RULE: If ANY word is missing or omitted, it CANNOT be correct
       if (!allWordsSpoken || missingWords.length > 0) {
         isCorrect = false;
-        if (missingWords.length === 1 && analysis.targetWordsCount >= 4 && analysis.wordAccuracy >= 70) {
-          score = Math.min(50, analysis.wordAccuracy);
-        } else {
-          score = 0;
-        }
+        score = (missingWords.length === 1 && analysis.targetWordsCount >= 4 && analysis.wordAccuracy >= 70) ? Math.min(50, analysis.wordAccuracy) : 0;
       } else {
         if (analysis.isExact || analysis.wordAccuracy >= 80) {
           isCorrect = true;
@@ -361,28 +358,20 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
           score = 45;
         }
       }
-
     } else if (currentExercise.type === 'writing_reorder') {
       const constructed = selectedWords.join(' ');
       studentResponse = constructed;
       const normConstructed = normalizeText(constructed);
       const normTarget = normalizeText(currentExercise.targetText);
-      const isExact = normConstructed === normTarget;
-
-      if (isExact) {
+      
+      if (normConstructed === normTarget) {
         isCorrect = true;
         score = 100;
       } else {
         const sim = calculateTextSimilarity(currentExercise.targetText, constructed);
-        if (sim >= 60) {
-          isCorrect = false;
-          score = Math.max(50, Math.round(sim * 0.75));
-        } else {
-          isCorrect = false;
-          score = 0;
-        }
+        isCorrect = false;
+        score = sim >= 60 ? Math.max(50, Math.round(sim * 0.75)) : 0;
       }
-
     } else if (currentExercise.options) {
       studentResponse = selectedOption || '';
       const normSelected = normalizeText(selectedOption || '');
@@ -400,9 +389,7 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
         isCorrect = false;
         score = 0;
       }
-
     } else {
-      // Free text writing or dictation
       studentResponse = textInput;
       const normInput = normalizeText(textInput);
       const normTarget = normalizeText(currentExercise.targetText);
@@ -427,7 +414,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
       }
     }
 
-    // Neutral feedback sound so user isn't tipped off during placement exam
     sound.playTap();
 
     const updatedAnswers = {
@@ -440,29 +426,23 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
     };
     setUserAnswers(updatedAnswers);
 
-    // Reset interaction state
     setTextInput('');
     setSelectedOption(null);
     setSelectedWords([]);
     setSpokenTranscript('');
-    setSpokenMissingWords([]);
     setIsAdvancing(false);
 
-    // Progress to next question / early-stop / bonus / discipline transition
     advanceDiagnostic(updatedAnswers);
   };
 
-  // Progression logic with Adaptive Early-Stopping on 2-3 mistakes
   const advanceDiagnostic = (answers: Record<string, { isCorrect: boolean; userText: string; score: number }>) => {
     const currentQIdx = currentQuestionIndexInDiscipline;
     const currentDisc = currentDisciplineKey;
     const currentBank = dynamicBanks[currentDisc];
 
-    // Compute mistakes so far in the current discipline
     const baseQuestionsAnswered = currentBank.baseQuestions.slice(0, currentQIdx + 1);
     const recentMistakes = baseQuestionsAnswered.filter(q => (answers[q.id]?.score || 0) < 70).length;
     
-    // Check consecutive mistakes at the trailing end
     let consecutiveMistakes = 0;
     for (let i = currentQIdx; i >= 0; i--) {
       const qId = currentBank.baseQuestions[i]?.id;
@@ -473,9 +453,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
       }
     }
 
-    // Adaptive Short-Circuit / Early-Stopping:
-    // 1. If 2 mistakes in the first 2 questions (A1 questions failed) -> ceiling detected immediately!
-    // 2. If 2 consecutive mistakes or 3 total mistakes before question 8 -> stop current discipline early to save student time.
     const shouldEarlyStop = (
       (currentQIdx === 1 && recentMistakes >= 2) ||
       (currentQIdx < 7 && consecutiveMistakes >= 2) ||
@@ -483,7 +460,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
     );
 
     if (shouldEarlyStop) {
-      // Transition to next discipline or complete exam immediately
       if (currentDisciplineIndex + 1 < DISCIPLINES_ORDER.length) {
         const nextDisc = DISCIPLINES_ORDER[currentDisciplineIndex + 1];
         const discResult = computeDisciplineScore(currentDisc, answers);
@@ -506,7 +482,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
       }
     }
 
-    // Check if we just answered Question 8 (the last of the 8 base questions)
     if (currentQIdx === 7 && disciplineQuestions.length === 8) {
       const baseScores = currentBank.baseQuestions.map(q => answers[q.id]?.score || 0);
       const avgBaseScore = baseScores.reduce((a, b) => a + b, 0) / 8;
@@ -531,7 +506,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
       }
     }
 
-    // Check if we just answered Question 10 (the last of the 2 C1 questions)
     if (currentQIdx === 9 && disciplineQuestions.length === 10) {
       const c1Scores = currentBank.c1Questions.map(q => answers[q.id]?.score || 0);
       const avgC1Score = c1Scores.reduce((a, b) => a + b, 0) / 2;
@@ -554,13 +528,11 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
       }
     }
 
-    // If there are more questions in the current discipline queue
     if (currentQIdx + 1 < disciplineQuestions.length) {
       setCurrentQuestionIndexInDiscipline(prev => prev + 1);
       return;
     }
 
-    // Current discipline is complete! Show intermediate Discipline Summary Card
     if (currentDisciplineIndex + 1 < DISCIPLINES_ORDER.length) {
       const nextDisc = DISCIPLINES_ORDER[currentDisciplineIndex + 1];
       const discResult = computeDisciplineScore(currentDisc, answers);
@@ -579,7 +551,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
       return;
     }
 
-    // All 4 disciplines complete!
     finishDiagnostic(answers);
   };
 
@@ -613,7 +584,7 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
       const c1Scores = bank.c1Questions.map(q => answersToUse[q.id]?.score || 0);
       const c2Scores = bank.c2Questions.map(q => answersToUse[q.id]?.score || 0);
 
-      const baseAvg = baseScores.reduce((a, b) => a + b, 0) / 8; // 0-100%
+      const baseAvg = baseScores.reduce((a, b) => a + b, 0) / 8;
 
       let finalDiscScore = 0;
       if (unlockedBonusLevels[disc].c2) {
@@ -664,7 +635,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
     setFinalResult(resultPayload);
     setIsExamCompleted(true);
 
-    // AI Analysis in background
     setAnalyzingWithAI(true);
     try {
       const res = await fetch(apiUrl('/api/gemini/analyze-diagnostic'), {
@@ -733,6 +703,86 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
   };
 
   // ==========================================
+  // PANTALLA DE INTRODUCCIÓN PREVIA (SKIP & ADVERTENCIA)
+  // ==========================================
+  if (showIntroScreen) {
+    return (
+      <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-8 text-center shadow-2xl animate-in zoom-in-95 duration-200 relative">
+          
+          <div className="w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <Brain className="w-8 h-8" />
+          </div>
+
+          <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-800 inline-block mb-3">
+            Evaluación de Nivel Adaptativa
+          </span>
+
+          <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mb-2">
+            ¡Bienvenido, {userName}! Descubramos tu nivel
+          </h3>
+
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+            Antes de arrancar, realizaremos una breve evaluación inteligente para medir tu nivel real de inglés (Writing, Speaking, Listening y Reading). Esto nos permite calibrar las lecciones exactamente a tu medida.
+          </p>
+
+          <div className="space-y-3">
+            <button
+              type="button"
+              onClick={() => setShowIntroScreen(false)}
+              className="w-full py-3.5 px-6 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-sm shadow-xl shadow-blue-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>Comenzar Evaluación Diagnóstica</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowSkipAlert(true)}
+              className="w-full py-3 px-6 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs transition-colors cursor-pointer"
+            >
+              Omitir evaluación por ahora (Skip)
+            </button>
+          </div>
+        </div>
+
+        {/* Alerta de advertencia al presionar Skip */}
+        {showSkipAlert && (
+          <div className="fixed inset-0 z-[70] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-150">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 text-center shadow-2xl">
+              <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 text-amber-500 flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2">
+                ¿Estás seguro de omitir la evaluación?
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+                Si te saltas la evaluación, comenzarás desde el nivel inicial (Principiante - A1). No te preocupes: podrás realizar una reevaluación o examen de nivelación más adelante desde el menú secundario cuando lo desees.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setShowSkipAlert(false)}
+                  className="flex-1 py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-xs cursor-pointer"
+                >
+                  Volver y Evaluarme
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSkipDiagnostic}
+                  className="flex-1 py-3 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shadow-lg cursor-pointer"
+                >
+                  Sí, comenzar desde el inicio
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ==========================================
   // RENDER INTERSTITIAL / BONUS UNLOCKED MODAL
   // ==========================================
   if (bonusUnlockedNotification) {
@@ -775,7 +825,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
           </div>
         </div>
 
-        {/* Confirmation Modal to Exit Reevaluation */}
         {showExitConfirmation && (
           <div className="fixed inset-0 z-[70] overflow-y-auto bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-150">
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 text-center shadow-2xl animate-in zoom-in-95 duration-200">
@@ -835,7 +884,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
               </button>
             )}
 
-            {/* Header */}
             <div className="text-center mb-5 sm:mb-6">
               <div className={`inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl ${completedDiscInfo.bg} ${completedDiscInfo.border} ${completedDiscInfo.text} border shadow-lg mb-2.5 sm:mb-3`}>
                 <CompletedIcon className="w-7 h-7 sm:w-8 sm:h-8" />
@@ -851,7 +899,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
               </p>
             </div>
 
-            {/* Discipline Average & Level Display Card */}
             <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 dark:from-slate-800/90 dark:to-slate-900/90 text-white border border-slate-700 shadow-xl mb-4 sm:mb-5">
               <div className="flex items-center justify-between gap-4 mb-3">
                 <div>
@@ -873,15 +920,10 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
                 </div>
               </div>
 
-              {/* Score Progress Bar */}
               <div className="w-full bg-white/10 h-2.5 rounded-full overflow-hidden mb-4">
-                <div 
-                  className={`h-full rounded-full transition-all duration-1000 ${completedDiscInfo.bar}`}
-                  style={{ width: `${disciplineTransition.score}%` }} 
-                />
+                <div className={`h-full rounded-full transition-all duration-1000 ${completedDiscInfo.bar}`} style={{ width: `${disciplineTransition.score}%` }} />
               </div>
 
-              {/* Quick Metrics Grid */}
               <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 text-center">
                 <div className="p-2 rounded-xl bg-white/5">
                   <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Preguntas Evaluadas</span>
@@ -894,7 +936,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
               </div>
             </div>
 
-            {/* Next Discipline Teaser Card */}
             <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 mb-5 sm:mb-6">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-1.5">
                 ¿Qué sigue a continuación?
@@ -914,7 +955,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
               </div>
             </div>
 
-            {/* Continue Button */}
             <button
               type="button"
               onClick={handleContinueAfterTransition}
@@ -927,7 +967,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
           </div>
         </div>
 
-        {/* Confirmation Modal to Exit Reevaluation */}
         {showExitConfirmation && (
           <div className="fixed inset-0 z-[70] overflow-y-auto bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-150">
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 text-center shadow-2xl animate-in zoom-in-95 duration-200">
@@ -982,7 +1021,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
               </button>
             )}
           
-            {/* Header */}
             <div className="text-center mb-5 sm:mb-6">
               <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-white shadow-xl shadow-emerald-500/25 mb-2.5 sm:mb-3">
                 <Award className="w-8 h-8 sm:w-9 sm:h-9" />
@@ -995,172 +1033,160 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
               </p>
             </div>
 
-          {/* Global Level Card */}
-          <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white shadow-lg mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
-              <span className="text-xs uppercase font-extrabold tracking-widest text-emerald-200">
-                Nivel Global Asignado
-              </span>
-              <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-4xl sm:text-5xl font-black">{finalResult.initialSubLevel}</span>
-                <span className="text-xl font-bold text-emerald-100">({finalResult.globalLevel})</span>
-              </div>
-              <p className="text-xs text-emerald-100 mt-2 max-w-md">
-                Puntaje promedio: <span className="font-bold text-white">{finalResult.globalScore}%</span>. Iniciarás en la etapa {finalResult.initialSubLevel} con un plan de nivelación personalizado para tus fortalezas y debilidades.
-              </p>
-            </div>
-
-            <div className="p-4 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-center shrink-0">
-              <span className="text-xs font-bold text-emerald-100 block">Preguntas Respondidas</span>
-              <span className="text-2xl font-black text-white">{Object.keys(userAnswers).length} ejercicios</span>
-              <span className="text-[10px] text-emerald-200 block mt-0.5">Adaptativo (A1 a C2)</span>
-            </div>
-          </div>
-
-          {/* 4 Disciplines Breakdown Grid */}
-          <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
-            <BarChart3 className="w-4 h-4 text-emerald-500" />
-            Desglose de Nivel por Disciplina
-          </h3>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-            
-            {/* Writing */}
-            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                    <Bot className="w-4 h-4" />
-                  </span>
-                  <span className="text-xs font-bold text-slate-900 dark:text-white">Writing (Escritura)</span>
-                </div>
-                <span className="text-xs font-black text-amber-600 dark:text-amber-400">
-                  {finalResult.disciplineLevels.writing} ({finalResult.disciplineScores.writing}%)
-                </span>
-              </div>
-              <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
-                <div className="bg-amber-500 h-full rounded-full transition-all duration-1000" style={{ width: `${finalResult.disciplineScores.writing}%` }} />
-              </div>
-            </div>
-
-            {/* Speaking */}
-            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="p-1.5 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400">
-                    <Mic className="w-4 h-4" />
-                  </span>
-                  <span className="text-xs font-bold text-slate-900 dark:text-white">Speaking (Pronunciación)</span>
-                </div>
-                <span className="text-xs font-black text-rose-600 dark:text-rose-400">
-                  {finalResult.disciplineLevels.speaking} ({finalResult.disciplineScores.speaking}%)
-                </span>
-              </div>
-              <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
-                <div className="bg-rose-500 h-full rounded-full transition-all duration-1000" style={{ width: `${finalResult.disciplineScores.speaking}%` }} />
-              </div>
-            </div>
-
-            {/* Listening */}
-            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="p-1.5 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400">
-                    <Volume2 className="w-4 h-4" />
-                  </span>
-                  <span className="text-xs font-bold text-slate-900 dark:text-white">Listening (Audición)</span>
-                </div>
-                <span className="text-xs font-black text-sky-600 dark:text-sky-400">
-                  {finalResult.disciplineLevels.listening} ({finalResult.disciplineScores.listening}%)
-                </span>
-              </div>
-              <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
-                <div className="bg-sky-500 h-full rounded-full transition-all duration-1000" style={{ width: `${finalResult.disciplineScores.listening}%` }} />
-              </div>
-            </div>
-
-            {/* Reading */}
-            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                    <Award className="w-4 h-4" />
-                  </span>
-                  <span className="text-xs font-bold text-slate-900 dark:text-white">Reading (Lectura)</span>
-                </div>
-                <span className="text-xs font-black text-emerald-600 dark:text-emerald-400">
-                  {finalResult.disciplineLevels.reading} ({finalResult.disciplineScores.reading}%)
-                </span>
-              </div>
-              <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
-                <div className="bg-emerald-500 h-full rounded-full transition-all duration-1000" style={{ width: `${finalResult.disciplineScores.reading}%` }} />
-              </div>
-            </div>
-
-          </div>
-
-          {/* Skill Balancer Allocation Box */}
-          <div className="p-5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 mb-6">
-            <div className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded-xl bg-indigo-500 text-white flex items-center justify-center shrink-0 shadow-md">
-                <Sparkles className="w-5 h-5" />
-              </div>
+            <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white shadow-lg mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div>
-                <h4 className="text-xs font-extrabold text-indigo-950 dark:text-indigo-200">
-                  Calibración de tu Plan Personalizado para tus Sesiones (40 Ejercicios)
-                </h4>
-                <p className="text-xs text-indigo-800 dark:text-indigo-300 mt-1 leading-relaxed">
-                  {finalResult.allocation.reasoning}
+                <span className="text-xs uppercase font-extrabold tracking-widest text-emerald-200">
+                  Nivel Global Asignado
+                </span>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className="text-4xl sm:text-5xl font-black">{finalResult.initialSubLevel}</span>
+                  <span className="text-xl font-bold text-emerald-100">({finalResult.globalLevel})</span>
+                </div>
+                <p className="text-xs text-emerald-100 mt-2 max-w-md">
+                  Puntaje promedio: <span className="font-bold text-white">{finalResult.globalScore}%</span>. Iniciarás en la etapa {finalResult.initialSubLevel} con un plan de nivelación personalizado para tus fortalezas y debilidades.
                 </p>
+              </div>
 
-                {/* Allocation Pills */}
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <span className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-700 text-xs font-bold text-amber-600 dark:text-amber-400">
-                    Writing: {finalResult.allocation.writing} ejercicios
+              <div className="p-4 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-center shrink-0">
+                <span className="text-xs font-bold text-emerald-100 block">Preguntas Respondidas</span>
+                <span className="text-2xl font-black text-white">{Object.keys(userAnswers).length} ejercicios</span>
+                <span className="text-[10px] text-emerald-200 block mt-0.5">Adaptativo (A1 a C2)</span>
+              </div>
+            </div>
+
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-emerald-500" />
+              Desglose de Nivel por Disciplina
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                      <Bot className="w-4 h-4" />
+                    </span>
+                    <span className="text-xs font-bold text-slate-900 dark:text-white">Writing (Escritura)</span>
+                  </div>
+                  <span className="text-xs font-black text-amber-600 dark:text-amber-400">
+                    {finalResult.disciplineLevels.writing} ({finalResult.disciplineScores.writing}%)
                   </span>
-                  <span className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-700 text-xs font-bold text-rose-600 dark:text-rose-400">
-                    Speaking: {finalResult.allocation.speaking} ejercicios
+                </div>
+                <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                  <div className="bg-amber-500 h-full rounded-full transition-all duration-1000" style={{ width: `${finalResult.disciplineScores.writing}%` }} />
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="p-1.5 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400">
+                      <Mic className="w-4 h-4" />
+                    </span>
+                    <span className="text-xs font-bold text-slate-900 dark:text-white">Speaking (Pronunciación)</span>
+                  </div>
+                  <span className="text-xs font-black text-rose-600 dark:text-rose-400">
+                    {finalResult.disciplineLevels.speaking} ({finalResult.disciplineScores.speaking}%)
                   </span>
-                  <span className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-700 text-xs font-bold text-sky-600 dark:text-sky-400">
-                    Listening: {finalResult.allocation.listening} ejercicios
+                </div>
+                <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                  <div className="bg-rose-500 h-full rounded-full transition-all duration-1000" style={{ width: `${finalResult.disciplineScores.speaking}%` }} />
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="p-1.5 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400">
+                      <Volume2 className="w-4 h-4" />
+                    </span>
+                    <span className="text-xs font-bold text-slate-900 dark:text-white">Listening (Audición)</span>
+                  </div>
+                  <span className="text-xs font-black text-sky-600 dark:text-sky-400">
+                    {finalResult.disciplineLevels.listening} ({finalResult.disciplineScores.listening}%)
                   </span>
-                  <span className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-700 text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                    Reading: {finalResult.allocation.reading} ejercicios
+                </div>
+                <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                  <div className="bg-sky-500 h-full rounded-full transition-all duration-1000" style={{ width: `${finalResult.disciplineScores.listening}%` }} />
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                      <Award className="w-4 h-4" />
+                    </span>
+                    <span className="text-xs font-bold text-slate-900 dark:text-white">Reading (Lectura)</span>
+                  </div>
+                  <span className="text-xs font-black text-emerald-600 dark:text-emerald-400">
+                    {finalResult.disciplineLevels.reading} ({finalResult.disciplineScores.reading}%)
                   </span>
+                </div>
+                <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                  <div className="bg-emerald-500 h-full rounded-full transition-all duration-1000" style={{ width: `${finalResult.disciplineScores.reading}%` }} />
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* AI Personalized Tips if available */}
-          {finalResult.aiRoadmap && (
-            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 mb-6">
-              <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
-                Recomendaciones Estratégicas:
-              </h4>
-              <ul className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
-                {finalResult.aiRoadmap.personalizedTips.map((tip, i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <span className="text-emerald-500 font-bold">•</span>
-                    <span>{tip}</span>
-                  </li>
-                ))}
-              </ul>
+            <div className="p-5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 mb-6">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-xl bg-indigo-500 text-white flex items-center justify-center shrink-0 shadow-md">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-extrabold text-indigo-950 dark:text-indigo-200">
+                    Calibración de tu Plan Personalizado para tus Sesiones (40 Ejercicios)
+                  </h4>
+                  <p className="text-xs text-indigo-800 dark:text-indigo-300 mt-1 leading-relaxed">
+                    {finalResult.allocation.reasoning}
+                  </p>
+
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <span className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-700 text-xs font-bold text-amber-600 dark:text-amber-400">
+                      Writing: {finalResult.allocation.writing} ejercicios
+                    </span>
+                    <span className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-700 text-xs font-bold text-rose-600 dark:text-rose-400">
+                      Speaking: {finalResult.allocation.speaking} ejercicios
+                    </span>
+                    <span className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-700 text-xs font-bold text-sky-600 dark:text-sky-400">
+                      Listening: {finalResult.allocation.listening} ejercicios
+                    </span>
+                    <span className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-700 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                      Reading: {finalResult.allocation.reading} ejercicios
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
-          )}
 
-          {/* Start Learning Button */}
-          <button
-            onClick={() => onFinish(finalResult)}
-            className="w-full py-4 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-base shadow-xl shadow-emerald-600/30 hover:shadow-emerald-600/40 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <span>Comenzar Mi Ruta de Aprendizaje ({finalResult.initialSubLevel})</span>
-            <ArrowRight className="w-5 h-5" />
-          </button>
+            {finalResult.aiRoadmap && (
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 mb-6">
+                <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
+                  Recomendaciones Estratégicas:
+                </h4>
+                <ul className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
+                  {finalResult.aiRoadmap.personalizedTips.map((tip, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <span className="text-emerald-500 font-bold">•</span>
+                      <span>{tip}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
+            <button
+              onClick={() => onFinish(finalResult)}
+              className="w-full py-4 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-base shadow-xl shadow-emerald-600/30 hover:shadow-emerald-600/40 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>Comenzar Mi Ruta de Aprendizaje ({finalResult.initialSubLevel})</span>
+              <ArrowRight className="w-5 h-5" />
+            </button>
+
+          </div>
         </div>
       </div>
-    </div>
     );
   }
 
@@ -1177,7 +1203,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
       <div className="min-h-full flex items-start sm:items-center justify-center p-2.5 sm:p-4 py-4 sm:py-8">
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-2xl w-full p-4 sm:p-8 shadow-2xl my-auto transition-all">
         
-        {/* Discipline Header & Progress */}
         <div className="mb-5">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
@@ -1208,7 +1233,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
             </div>
           </div>
 
-          {/* Progress Bar for Current Discipline */}
           <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
             <div 
               className="bg-emerald-500 h-full rounded-full transition-all duration-300"
@@ -1217,7 +1241,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
           </div>
         </div>
 
-        {/* Reading Passage if present */}
         {currentExercise?.passage && (
           <div className="p-4 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 mb-4 text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-serif">
             <span className="font-sans text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block mb-1">
@@ -1227,14 +1250,12 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
           </div>
         )}
 
-        {/* Prompt / Instruction */}
         <div className="mb-6">
           <h3 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white leading-snug">
             {currentExercise?.prompt}
           </h3>
         </div>
 
-        {/* Audio Player Button (Strictly For Listening comprehension) */}
         {currentExercise?.discipline === 'listening' && currentExercise?.audioText && (
           <div className="flex flex-wrap items-center gap-2 mb-6 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
             <button
@@ -1256,12 +1277,7 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
           </div>
         )}
 
-        {/* ==========================================
-            EXERCISE INTERACTION AREA
-        ========================================== */}
         <div className="mb-6">
-
-          {/* 1. Speaking (Speech Recognition + Mandatory Microphone) */}
           {currentExercise?.discipline === 'speaking' && (
             <div className="space-y-4">
               <div className="p-5 rounded-2xl bg-rose-50/60 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 text-center">
@@ -1275,13 +1291,11 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
                   </p>
                 </div>
 
-                {/* Microphone Mandatory Requirement Badge */}
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-100 dark:bg-rose-900/50 text-rose-800 dark:text-rose-200 text-[11px] font-extrabold mb-3">
                   <Mic className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
                   <span>Uso de micrófono obligatorio para evaluar Speaking</span>
                 </div>
 
-                {/* Mic Button */}
                 <div className="flex justify-center my-3">
                   <button
                     type="button"
@@ -1306,7 +1320,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
                     : 'Presiona el micrófono para comenzar a hablar'}
                 </p>
 
-                {/* Detected Audio Transcript */}
                 {spokenTranscript ? (
                   <div className="mt-4 p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-rose-300 dark:border-rose-800 text-left shadow-sm">
                     <div className="flex items-center justify-between gap-2 mb-1">
@@ -1334,7 +1347,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
                   </p>
                 )}
 
-                {/* Recognition Error / Microphone Blocked Warning */}
                 {recognitionError && (
                   <div className="mt-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 text-xs font-semibold flex items-start gap-2 text-left">
                     <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
@@ -1354,10 +1366,8 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
             </div>
           )}
 
-          {/* 2. Word Reordering (Writing) */}
           {currentExercise?.type === 'writing_reorder' && (
             <div className="space-y-3">
-              {/* Selected Words Canvas */}
               <div className="min-h-14 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border-2 border-dashed border-slate-300 dark:border-slate-700 flex flex-wrap gap-2 items-center">
                 {selectedWords.length === 0 ? (
                   <span className="text-xs text-slate-400 italic">Toca las palabras abajo en el orden correcto...</span>
@@ -1376,7 +1386,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
                 )}
               </div>
 
-              {/* Pool Header with Re-shuffle button */}
               <div className="flex items-center justify-between px-1 pt-1">
                 <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                   Palabras disponibles:
@@ -1393,7 +1402,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
                 </button>
               </div>
 
-              {/* Available Words Pool */}
               <div className="flex flex-wrap gap-2 justify-center pt-1">
                 {availableWords.map((word, idx) => (
                   <button
@@ -1410,7 +1418,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
             </div>
           )}
 
-          {/* 3. Multiple Choice Options */}
           {currentExercise?.options && currentExercise.type !== 'writing_reorder' && (
             <div className="space-y-2.5">
               {(displayOptions.length > 0 ? displayOptions : currentExercise.options).map((option, idx) => {
@@ -1440,7 +1447,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
             </div>
           )}
 
-          {/* 4. Open Text Input */}
           {!currentExercise?.options && currentExercise?.discipline !== 'speaking' && (
             <div>
               <textarea
@@ -1453,10 +1459,8 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
               />
             </div>
           )}
-
         </div>
 
-        {/* Action Button: Confirm & Continue */}
         <div className="pt-2">
           <button
             type="button"
@@ -1494,7 +1498,6 @@ export const DiagnosticExamModal: React.FC<DiagnosticExamModalProps> = ({
       </div>
     </div>
 
-    {/* Confirmation Modal to Exit Reevaluation */}
     {showExitConfirmation && (
       <div className="fixed inset-0 z-[70] overflow-y-auto bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-150">
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 text-center shadow-2xl animate-in zoom-in-95 duration-200">
