@@ -2,6 +2,7 @@ import { UserProfile, DiagnosticResult, Discipline, DiagnosticDiscipline, CEFRLe
 
 const STORAGE_KEY = 'norteno_english_profile_v1';
 const DIAGNOSTIC_KEY = 'norteno_english_diagnostic_v1';
+const SESSION_PROGRESS_PREFIX = 'norteno_session_progress_';
 
 export const DEFAULT_ALLOCATION: DisciplineAllocation = {
   writing: 10,
@@ -90,6 +91,40 @@ export function saveDiagnosticResult(result: DiagnosticResult): void {
   }
 }
 
+// ==========================================
+// NUEVAS FUNCIONES: PERSISTENCIA DE PROGRESO PARCIAL EN SESIONES
+// ==========================================
+
+export function saveSessionProgress(subLevelId: string, exerciseIndex: number): void {
+  try {
+    localStorage.setItem(`${SESSION_PROGRESS_PREFIX}${subLevelId}`, JSON.stringify({
+      exerciseIndex,
+      updatedAt: new Date().toISOString()
+    }));
+  } catch (e) {
+    console.error('Error saving session progress', e);
+  }
+}
+
+export function loadSessionProgress(subLevelId: string): number {
+  try {
+    const raw = localStorage.getItem(`${SESSION_PROGRESS_PREFIX}${subLevelId}`);
+    if (!raw) return 0;
+    const parsed = JSON.parse(raw);
+    return typeof parsed.exerciseIndex === 'number' ? parsed.exerciseIndex : 0;
+  } catch (e) {
+    return 0;
+  }
+}
+
+export function clearSessionProgress(subLevelId: string): void {
+  try {
+    localStorage.removeItem(`${SESSION_PROGRESS_PREFIX}${subLevelId}`);
+  } catch (e) {
+    console.error('Error clearing session progress', e);
+  }
+}
+
 /**
  * Calculates CEFR level from score (0-100)
  */
@@ -130,7 +165,6 @@ export function scoreToSubLevel(score: number): SubLevel {
 /**
  * Dynamically computes exercise distribution out of 40 exercises for a session
  * to level up the student's weakest disciplines.
- * (e.g., if Writing is weaker, Writing gets 16-18 exercises, while others get 7-8).
  */
 export function calculateAdaptiveAllocation(scores: {
   writing: number;
@@ -140,8 +174,6 @@ export function calculateAdaptiveAllocation(scores: {
 }): DisciplineAllocation {
   const disciplines: DiagnosticDiscipline[] = ['writing', 'speaking', 'listening', 'reading'];
   
-  // Calculate deficit for each discipline (100 - score)
-  // Give a floor of 10 deficit so even 100% still gets baseline practice
   const deficits = disciplines.map(d => ({
     discipline: d,
     score: scores[d],
@@ -150,7 +182,6 @@ export function calculateAdaptiveAllocation(scores: {
 
   const totalDeficit = deficits.reduce((sum, item) => sum + item.deficit, 0);
 
-  // Allocate 40 exercises proportionally to deficit
   const rawAllocations: Record<DiagnosticDiscipline, number> = {
     writing: 0,
     speaking: 0,
@@ -160,21 +191,17 @@ export function calculateAdaptiveAllocation(scores: {
 
   let allocatedSum = 0;
   deficits.forEach(item => {
-    // Minimum 5 exercises per discipline in a 40-question session
     const count = Math.max(5, Math.round((item.deficit / totalDeficit) * 40));
     rawAllocations[item.discipline] = count;
     allocatedSum += count;
   });
 
-  // Adjust to exactly 40 total
   const diff = 40 - allocatedSum;
   if (diff !== 0) {
-    // Add/remove from highest deficit discipline
     const sorted = [...deficits].sort((a, b) => b.deficit - a.deficit);
     rawAllocations[sorted[0].discipline] += diff;
   }
 
-  // Find weakest discipline
   const weakest = [...deficits].sort((a, b) => a.score - b.score)[0];
   const strongest = [...deficits].sort((a, b) => b.score - a.score)[0];
 
@@ -207,7 +234,7 @@ export function checkAndUpdateDailyStreak(profile: UserProfile): UserProfile {
   const lastActive = profile.streak.lastActiveDate;
 
   if (lastActive === today) {
-    return profile; // Already active today
+    return profile;
   }
 
   const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
@@ -216,16 +243,12 @@ export function checkAndUpdateDailyStreak(profile: UserProfile): UserProfile {
   let newFrozen = false;
 
   if (lastActive === yesterday) {
-    // Maintained streak!
     newCount += 1;
   } else {
-    // Missed a day
     if (profile.streak.freezeCount > 0 && !profile.streak.frozenToday) {
-      // Use streak freeze
       newFrozen = true;
       profile.streak.freezeCount -= 1;
     } else {
-      // Reset streak
       newCount = 1;
     }
   }
