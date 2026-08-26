@@ -1,250 +1,7 @@
 import { Exercise, Discipline, SubLevel, CEFRLevel, VocabPair } from '../types';
 import { getSubLevelTheme, ThematicSessionPlan } from './thematicCurriculum';
 
-export const THEMATIC_EXERCISES_DATABASE: Record<string, Exercise[]> = {
-  'A1.0_1': [
-    {
-      id: 'a1_0_s1_v1',
-      discipline: 'vocabulary',
-      type: 'vocab_flashcard',
-      level: 'A1',
-      subLevel: 'A1.0',
-      thematicUnit: 'Greetings, Names & Alphabet',
-      sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: 'Tarjeta de Vocabulario: Aprende el saludo básico',
-      targetText: 'Hello',
-      correctOption: 'Hello',
-      spanishTranslation: 'Hola',
-      audioText: 'Hello',
-      phoneticGuide: 'Jelóu',
-      options: ['Hello', 'Goodbye', 'Please', 'Thanks'],
-      acceptableAnswers: ['Hello', 'hello'],
-      mexicanTip: '"Hello" es el saludo estándar en EE.UU.',
-      explanation: '"Hello" significa "Hola".'
-    },
-    {
-      id: 'a1_0_s1_v2',
-      discipline: 'vocabulary',
-      type: 'vocab_flashcard',
-      level: 'A1',
-      subLevel: 'A1.0',
-      thematicUnit: 'Greetings, Names & Alphabet',
-      sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: 'Tarjeta de Vocabulario: Saludo matutino',
-      targetText: 'Good morning',
-      correctOption: 'Good morning',
-      spanishTranslation: 'Buenos días',
-      audioText: 'Good morning',
-      phoneticGuide: 'Gud mór-ning',
-      options: ['Good morning', 'Good night', 'Goodbye', 'Hello'],
-      acceptableAnswers: ['Good morning', 'good morning'],
-      mexicanTip: 'Se usa desde la mañana hasta las 12:00 PM.',
-      explanation: '"Good morning" significa "Buenos días".'
-    },
-    {
-      id: 'a1_0_s1_v3',
-      discipline: 'vocabulary',
-      type: 'vocab_select_translation',
-      level: 'A1',
-      subLevel: 'A1.0',
-      thematicUnit: 'Greetings, Names & Alphabet',
-      sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: '¿Cómo te despides diciendo "Adiós" en inglés?',
-      targetText: 'Goodbye',
-      correctOption: 'Goodbye',
-      audioText: 'Goodbye',
-      phoneticGuide: 'Gud-bái',
-      options: ['Goodbye', 'Hello', 'Please', 'Good morning'],
-      acceptableAnswers: ['Goodbye', 'goodbye', 'Bye', 'bye'],
-      mexicanTip: 'De forma casual puedes decir simplemente "Bye!".',
-      explanation: '"Goodbye" significa "Adiós".'
-    },
-    {
-      id: 'a1_0_s1_v4',
-      discipline: 'vocabulary',
-      type: 'vocab_association',
-      level: 'A1',
-      subLevel: 'A1.0',
-      thematicUnit: 'Greetings, Names & Alphabet',
-      sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: '¿Qué palabra usas para decir "Gracias"?',
-      targetText: 'Thank you',
-      correctOption: 'Thank you',
-      audioText: 'Thank you',
-      phoneticGuide: 'Zank iu',
-      options: ['Thank you', 'Please', 'Hello', 'Goodbye'],
-      acceptableAnswers: ['Thank you', 'thank you', 'Thanks', 'thanks'],
-      mexicanTip: 'Pon la lengua entre los dientes al pronunciar "Th".',
-      explanation: '"Thank you" significa "Gracias".'
-    },
-    {
-      id: 'a1_0_s1_v5',
-      discipline: 'vocabulary',
-      type: 'vocab_match',
-      level: 'A1',
-      subLevel: 'A1.0',
-      thematicUnit: 'Greetings, Names & Alphabet',
-      sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: 'Empareja cada saludo en inglés con su significado',
-      targetText: 'Hello, Good morning, Goodbye, Thank you',
-      vocabPairs: [
-        { id: 'vp1', english: 'Hello', spanish: 'Hola', phonetic: 'Jelóu' },
-        { id: 'vp2', english: 'Good morning', spanish: 'Buenos días', phonetic: 'Gud mór-ning' },
-        { id: 'vp3', english: 'Goodbye', spanish: 'Adiós', phonetic: 'Gud-bái' },
-        { id: 'vp4', english: 'Thank you', spanish: 'Gracias', phonetic: 'Zank iu' }
-      ],
-      mexicanTip: 'Bloque básico de cortesía.',
-      explanation: 'Saludos esenciales.'
-    },
-    {
-      id: 'a1_0_s1_g1',
-      discipline: 'grammar',
-      type: 'grammar_rule_builder',
-      level: 'A1',
-      subLevel: 'A1.0',
-      thematicUnit: 'Greetings, Names & Alphabet',
-      sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: 'Elige la forma correcta para decir "Yo soy Carlos":',
-      ruleFormula: '[I] + [am] + [Nombre]',
-      targetText: 'I am Carlos',
-      correctOption: 'I am Carlos',
-      audioText: 'I am Carlos.',
-      options: ['I am Carlos', 'I are Carlos', 'I is Carlos', 'I be Carlos'],
-      mexicanTip: 'Con "I" siempre va "am".',
-      explanation: 'Estructura básica de presentación.'
-    },
-    {
-      id: 'a1_0_s1_g2',
-      discipline: 'grammar',
-      type: 'grammar_fill_blank',
-      level: 'A1',
-      subLevel: 'A1.0',
-      thematicUnit: 'Greetings, Names & Alphabet',
-      sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: 'Completa el espacio: "You _____ Sofia."',
-      ruleFormula: '[You] + [are]',
-      targetText: 'are',
-      correctOption: 'are',
-      audioText: 'You are Sofia.',
-      options: ['are', 'am', 'is', 'be'],
-      mexicanTip: 'Con "You" siempre se usa "are".',
-      explanation: 'Verbo To Be en segunda persona.'
-    },
-    {
-      id: 'a1_0_s1_g3',
-      discipline: 'grammar',
-      type: 'grammar_choice',
-      level: 'A1',
-      subLevel: 'A1.0',
-      thematicUnit: 'Greetings, Names & Alphabet',
-      sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: '¿Cómo dirías de forma natural "Soy David" usando contracción?',
-      ruleFormula: 'I am = I\'m',
-      targetText: "I'm David",
-      correctOption: "I'm David",
-      audioText: "I'm David.",
-      options: ["I'm David", "Im David", "I am's David", "Me is David"],
-      mexicanTip: 'Los nativos usan "I\'m" al hablar.',
-      explanation: 'Contracción estándar de "I am".'
-    },
-    {
-      id: 'a1_0_s1_g4',
-      discipline: 'grammar',
-      type: 'grammar_order',
-      level: 'A1',
-      subLevel: 'A1.0',
-      thematicUnit: 'Greetings, Names & Alphabet',
-      sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: 'Ordena las palabras para formar: "Hola, yo soy María."',
-      targetText: 'Hello, I am Maria.',
-      options: ['am', 'Maria.', 'Hello,', 'I'],
-      mexicanTip: 'Saludo + Sujeto + Verbo.',
-      explanation: 'Estructura afirmativa.'
-    },
-    {
-      id: 'a1_0_s1_g5',
-      discipline: 'grammar',
-      type: 'grammar_choice',
-      level: 'A1',
-      subLevel: 'A1.0',
-      thematicUnit: 'Greetings, Names & Alphabet',
-      sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: '¿Cuál es la frase correcta para decir tu nombre?',
-      targetText: 'My name is Alex',
-      correctOption: 'My name is Alex',
-      audioText: 'My name is Alex.',
-      options: ['My name is Alex', 'My name are Alex', 'My name am Alex', 'Me name is Alex'],
-      mexicanTip: '"My name" lleva "is".',
-      explanation: 'Fórmula clásica de presentación.'
-    },
-    {
-      id: 'a1_0_s1_r1',
-      discipline: 'reading',
-      type: 'reading_comprehension',
-      level: 'A1',
-      subLevel: 'A1.0',
-      thematicUnit: 'Greetings, Names & Alphabet',
-      sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      passage: 'Alex: "Hello! Good morning."\nSofia: "Good morning! My name is Sofia."',
-      prompt: '¿Quién saludó primero?',
-      targetText: 'Alex',
-      correctOption: 'Alex',
-      options: ['Alex', 'Sofia', 'Carlos', 'Nadie'],
-      mexicanTip: 'Lee el orden del diálogo.',
-      explanation: 'Alex inicia la conversación.'
-    },
-    {
-      id: 'a1_0_s1_w1',
-      discipline: 'writing',
-      type: 'writing_reorder',
-      level: 'A1',
-      subLevel: 'A1.0',
-      thematicUnit: 'Greetings, Names & Alphabet',
-      sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: 'Ordena las palabras para formar un saludo:',
-      targetText: 'Good morning, my name is Carlos.',
-      options: ['morning,', 'is', 'Carlos.', 'name', 'Good', 'my'],
-      mexicanTip: 'Mayúscula al inicio y punto al final.',
-      explanation: 'Estructura escrita correcta.'
-    },
-    {
-      id: 'a1_0_s1_l1',
-      discipline: 'listening',
-      type: 'listening_select',
-      level: 'A1',
-      subLevel: 'A1.0',
-      thematicUnit: 'Greetings, Names & Alphabet',
-      sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: 'Escucha el audio y elige lo que dijo la persona:',
-      audioText: 'Good morning! My name is Carlos.',
-      targetText: 'Buenos días! Mi nombre es Carlos.',
-      correctOption: 'Buenos días! Mi nombre es Carlos.',
-      options: [
-        'Buenos días! Mi nombre es Carlos.',
-        'Buenas noches! Yo soy David.',
-        'Hasta luego Carlos.',
-        'Hola! Toma asiento.'
-      ],
-      mexicanTip: 'Atento al saludo matutino.',
-      explanation: 'Audio de presentación.'
-    },
-    {
-      id: 'a1_0_s1_s1',
-      discipline: 'speaking',
-      type: 'speaking_pronounce',
-      level: 'A1',
-      subLevel: 'A1.0',
-      thematicUnit: 'Greetings, Names & Alphabet',
-      sessionTheme: 'Hi & Hello: Saludos y Despedidas',
-      prompt: 'Pronuncia esta presentación con ritmo natural:',
-      audioText: "Hello! My name is Carlos.",
-      targetText: "Hello! My name is Carlos.",
-      phoneticGuide: 'Jelóu! Mái néim is Cár-los.',
-      mexicanTip: 'Exhala suavemente en la "H".',
-      explanation: 'Práctica oral.'
-    }
-  ]
-};
+export const THEMATIC_EXERCISES_DATABASE: Record<string, Exercise[]> = {};
 
 export function generateThematicExercises(
   tier: CEFRLevel,
@@ -262,20 +19,43 @@ export function generateThematicExercises(
     return directBank;
   }
 
-  // Extraer las palabras clave reales del tema (ej. pancakes, eggs, bacon, coffee)
+  // Extraer las palabras clave de la sesión
   const vocabWords = sessionPlan.vocabFocus.split(',').map(s => s.trim()).filter(Boolean);
   const v1 = vocabWords[0] || sessionPlan.topic;
   const v2 = vocabWords[1] || 'toast';
   const v3 = vocabWords[2] || 'coffee';
   const v4 = vocabWords[3] || 'juice';
 
-  // Banco limpio de opciones de vocabulario basadas estrictamente en las palabras clave reales
-  const cleanVocabPool = [v1, v2, v3, v4, 'water', 'bread', 'milk', 'fruit', 'tea', 'sugar'];
+  const cleanVocabPool = [v1, v2, v3, v4, 'water', 'bread', 'milk', 'fruit', 'coffee', 'tea', 'pancakes', 'eggs', 'bacon'];
 
   const getCleanOptions = (target: string) => {
     const others = cleanVocabPool.filter(w => w.toLowerCase() !== target.toLowerCase());
     const shuffledOthers = [...others].sort(() => 0.5 - Math.random()).slice(0, 3);
     return [target, ...shuffledOthers].sort(() => 0.5 - Math.random());
+  };
+
+  // Diccionario inteligente de traducción para los enunciados en español
+  const translationMap: Record<string, string> = {
+    'pancakes': 'hotcakes / panqueques',
+    'eggs': 'huevos',
+    'bacon': 'tocino',
+    'coffee': 'café',
+    'toast': 'pan tostado',
+    'juice': 'jugo',
+    'water': 'agua',
+    'bread': 'pan',
+    'milk': 'leche',
+    'fruit': 'fruta',
+    'tea': 'té',
+    'sugar': 'azúcar',
+    'Hello': 'Hola',
+    'Good morning': 'Buenos días',
+    'Goodbye': 'Adiós',
+    'Thank you': 'Gracias'
+  };
+
+  const getSpanishLabel = (word: string) => {
+    return translationMap[word] || translationMap[word.toLowerCase()] || word;
   };
 
   const vocabExercises: Exercise[] = [
@@ -287,7 +67,7 @@ export function generateThematicExercises(
       subLevel,
       thematicUnit: themeData.unitTitle,
       sessionTheme: sessionPlan.title,
-      prompt: `Tarjeta de Vocabulario: Aprende e identifica el término "${v1}"`,
+      prompt: `¿Cómo se dice en inglés "${getSpanishLabel(v1)}"?`,
       targetText: v1,
       correctOption: v1,
       audioText: v1,
@@ -305,7 +85,7 @@ export function generateThematicExercises(
       subLevel,
       thematicUnit: themeData.unitTitle,
       sessionTheme: sessionPlan.title,
-      prompt: `Elige la opción correcta para el vocabulario "${v2}":`,
+      prompt: `¿Cómo se dice en inglés "${getSpanishLabel(v2)}"?`,
       targetText: v2,
       correctOption: v2,
       audioText: v2,
@@ -322,7 +102,7 @@ export function generateThematicExercises(
       subLevel,
       thematicUnit: themeData.unitTitle,
       sessionTheme: sessionPlan.title,
-      prompt: `Asociación en situación real (${sessionPlan.realLifeContext}): ¿Qué palabra representa "${v3}"?`,
+      prompt: `¿Cómo se dice en inglés "${getSpanishLabel(v3)}"?`,
       targetText: v3,
       correctOption: v3,
       audioText: v3,
@@ -339,7 +119,7 @@ export function generateThematicExercises(
       subLevel,
       thematicUnit: themeData.unitTitle,
       sessionTheme: sessionPlan.title,
-      prompt: `Identifica la opción correcta para el término "${v4}":`,
+      prompt: `¿Cómo se dice en inglés "${getSpanishLabel(v4)}"?`,
       targetText: v4,
       correctOption: v4,
       audioText: v4,
@@ -359,10 +139,10 @@ export function generateThematicExercises(
       prompt: `Mini Juego de Vocabulario: Conecta las palabras clave de la sesión "${sessionPlan.title}"`,
       targetText: `${v1}, ${v2}, ${v3}, ${v4}`,
       vocabPairs: [
-        { id: 'dvp1', english: v1, spanish: `${v1} (Concepto 1)` },
-        { id: 'dvp2', english: v2, spanish: `${v2} (Concepto 2)` },
-        { id: 'dvp3', english: v3, spanish: `${v3} (Concepto 3)` },
-        { id: 'dvp4', english: v4, spanish: `${v4} (Concepto 4)` }
+        { id: 'dvp1', english: v1, spanish: `${getSpanishLabel(v1)}` },
+        { id: 'dvp2', english: v2, spanish: `${getSpanishLabel(v2)}` },
+        { id: 'dvp3', english: v3, spanish: `${getSpanishLabel(v3)}` },
+        { id: 'dvp4', english: v4, spanish: `${getSpanishLabel(v4)}` }
       ],
       mexicanTip: `Aprender vocabulario por bloques temáticos acelera la fluidez.`,
       explanation: `Integración del vocabulario de la sesión.`
