@@ -566,7 +566,7 @@ export function generateThematicExercises(
       targetText: v1,
       correctOption: v1,
       audioText: v1,
-      phoneticGuide: `Pronunciación guiada en inglés americano`,
+      phoneticGuide: `Pronunciación guiada en inglés estadounidense`,
       options: [v1, 'Practical term', 'Core expression', 'Common phrase'],
       acceptableAnswers: [v1, v1.toLowerCase()],
       mexicanTip: `Enfoque comunicativo en EE.UU.: ${sessionPlan.culturalNote}`,
@@ -634,10 +634,10 @@ export function generateThematicExercises(
       prompt: `Mini Juego de Vocabulario: Conecta las palabras clave de la sesión "${sessionPlan.title}"`,
       targetText: `${v1}, ${v2}, ${v3}, ${v4}`,
       vocabPairs: [
-        { id: 'dvp1', english: v1, spanish: `Término: ${v1}` },
-        { id: 'dvp2', english: v2, spanish: `Frase: ${v2}` },
-        { id: 'dvp3', english: v3, spanish: `Concepto: ${v3}` },
-        { id: 'dvp4', english: v4, spanish: `Uso: ${v4}` }
+        { id: 'dvp1', english: v1, spanish: `${v1} (Concepto 1)` },
+        { id: 'dvp2', english: v2, spanish: `${v2} (Concepto 2)` },
+        { id: 'dvp3', english: v3, spanish: `${v3} (Concepto 3)` },
+        { id: 'dvp4', english: v4, spanish: `${v4} (Concepto 4)` }
       ],
       mexicanTip: `Aprender vocabulario por bloques temáticos acelera la fluidez conversacional.`,
       explanation: `Integración del vocabulario de la sesión ${sessionPlan.title}.`
